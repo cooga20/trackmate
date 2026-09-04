@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TrackMate</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --green:#00D68F;--green-dim:#00D68F22;--orange:#FFB347;--orange-dim:#FFB34722;
+      --red:#FF6B6B;--red-dim:#FF6B6B22;--pink:#FF69B4;--pink-dim:#FF69B422;
+      --purple:#A855F7;--bg:#080D14;--surface:#0E1620;--surface2:#152030;
+      --border:#1E2E42;--text:#E8F0F8;--muted:#5A7A9A;
+      --mono:'Space Mono',monospace;--sans:'DM Sans',sans-serif;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+    body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:40px 40px;opacity:0.3;pointer-events:none;z-index:0;}
+    .app{position:relative;z-index:1;max-width:480px;margin:0 auto;min-height:100vh;}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+    @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+
+    .screen{display:none;min-height:100vh;}
+    .screen.on{display:block;}
+    .app-header{padding:14px 20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:100;}
+    .back-btn{width:32px;height:32px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;flex-shrink:0;transition:all 0.2s;}
+    .back-btn:hover{border-color:var(--green);}
+    .hdr-title{font-size:15px;font-weight:600;flex:1;}
+    .live-sm{display:inline-flex;align-items:center;gap:4px;background:var(--green-dim);border:1px solid var(--green);border-radius:99px;padding:3px 8px;font-size:10px;color:var(--green);font-family:var(--mono);}
+    .live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 1.2s infinite;}
+    .content{padding:14px;}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px;}
+    .clabel{font-size:10px;font-family:var(--mono);color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;}
+    select{width:100%;padding:10px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:13px;font-family:var(--sans);margin-bottom:10px;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%235A7A9A' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;cursor:pointer;}
+    select:focus{outline:none;border-color:var(--green);}
+    input[type=text],input[type=tel],input[type=date],input[type=number]{width:100%;padding:10px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:13px;font-family:var(--sans);margin-bottom:10px;outline:none;transition:border-color 0.2s;}
+    input:focus{border-color:var(--green);}
+    input::placeholder{color:var(--muted);}
+    .btn{width:100%;padding:12px;background:var(--green);border:none;border-radius:10px;color:#000;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--sans);transition:all 0.2s;}
+    .btn:hover{background:#00BF80;}
+    .btn:disabled{background:var(--border);color:var(--muted);cursor:not-allowed;}
+    .btn-orange{background:var(--orange);color:#000;}
+    .btn-orange:hover{background:#e09030;}
+    .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+    .lbl{font-size:10px;color:var(--muted);font-family:var(--mono);margin-bottom:5px;}
+
+    /* SIGNUP */
+    .signup-page{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;}
+    .su-logo{width:70px;height:70px;background:var(--green);border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:36px;margin-bottom:20px;box-shadow:0 0 40px var(--green-dim);}
+    .su-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:28px;width:100%;max-width:380px;}
+    .su-lbl{font-size:11px;font-family:var(--mono);color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;display:block;}
+    .su-input{width:100%;padding:13px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:15px;font-family:var(--sans);margin-bottom:18px;outline:none;transition:border-color 0.2s;}
+    .su-input:focus{border-color:var(--green);}
+    .su-input::placeholder{color:var(--muted);}
+    .su-btn{width:100%;padding:14px;background:var(--green);border:none;border-radius:10px;color:#000;font-size:15px;font-weight:700;cursor:pointer;font-family:var(--sans);}
+    .su-terms{font-size:11px;color:var(--muted);text-align:center;margin-top:16px;line-height:1.6;}
+
+    /* LANDING */
+    .l-header{padding:18px 20px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+    .l-logo-row{display:flex;align-items:center;gap:10px;}
+    .l-logo{width:36px;height:36px;background:var(--green);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+    .upill{display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:99px;padding:6px 12px;}
+    .uavatar{width:24px;height:24px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#000;}
+    .uname{font-size:12px;font-weight:500;}
+    .lc{padding:16px;}
+    .greet-text{font-size:22px;font-weight:700;margin-bottom:4px;}
+    .greet-sub{font-size:13px;color:var(--muted);margin-bottom:10px;}
+    .live-badge{display:inline-flex;align-items:center;gap:5px;background:var(--green-dim);border:1px solid var(--green);border-radius:99px;padding:4px 10px;font-size:11px;color:var(--green);font-family:var(--mono);margin-bottom:20px;}
+    .slabel{font-size:10px;font-family:var(--mono);color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;}
+    .fgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+    .fc{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden;}
+    .fc:hover{border-color:var(--green);transform:translateY(-2px);}
+    .fc.live{border-color:var(--green)22;background:linear-gradient(135deg,var(--surface),#0E2419);}
+    .fc.live:hover{border-color:var(--green);}
+    .fc.soon{opacity:0.75;}
+    .fc.soon:hover{border-color:var(--border);transform:none;}
+    .fc-icon{font-size:26px;margin-bottom:8px;display:block;}
+    .fc-name{font-size:13px;font-weight:600;margin-bottom:3px;}
+    .fc-desc{font-size:11px;color:var(--muted);line-height:1.4;}
+    .fc-badge{position:absolute;top:8px;right:8px;font-size:9px;padding:2px 6px;border-radius:99px;font-family:var(--mono);}
+    .bl{background:var(--green-dim);color:var(--green);border:1px solid var(--green);}
+    .bs{background:var(--surface2);color:var(--muted);border:1px solid var(--border);}
+
+    /* JOURNEY */
+    .combined-result{display:none;}
+    .eta-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px;}
+    .density-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px;}
+    .rrow{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+    .rsec{font-size:12px;font-weight:600;color:var(--muted);font-family:var(--mono);letter-spacing:0.5px;text-transform:uppercase;}
+    .utext{font-size:10px;color:var(--muted);font-family:var(--mono);margin-bottom:10px;}
+    .rbtn{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:5px 10px;color:var(--green);font-size:11px;cursor:pointer;font-family:var(--mono);display:flex;align-items:center;gap:4px;transition:all 0.2s;}
+    .rbtn:hover{border-color:var(--green);}
+    .ri{display:inline-block;}
+    .rbtn.spinning .ri{animation:spin 0.5s linear;}
+
+    /* TRACK */
+    .tw{position:relative;padding:28px 0 16px;overflow:hidden;}
+    .trl{height:4px;background:var(--border);border-radius:2px;margin:0 16px;position:relative;}
+    .trp{height:100%;background:linear-gradient(90deg,var(--green),#00BF80);border-radius:2px;width:0%;box-shadow:0 0 8px var(--green);}
+    .sdots{position:absolute;top:21px;left:16px;right:16px;display:flex;justify-content:space-between;}
+    .sd{width:10px;height:10px;border-radius:50%;background:var(--border);border:2px solid var(--surface);transition:all 0.4s;flex-shrink:0;}
+    .sd.passed{background:var(--green);box-shadow:0 0 6px var(--green);}
+    .sd.current{background:#fff;border-color:var(--green);transform:scale(1.6);box-shadow:0 0 10px var(--green);}
+    .sd.myst{background:var(--orange);box-shadow:0 0 8px var(--orange);transform:scale(1.4);}
+    .tmrk{position:absolute;top:14px;font-size:18px;transform:translateX(-50%);filter:drop-shadow(0 0 6px var(--green));z-index:10;}
+    .snames{display:flex;justify-content:space-between;margin:6px 16px 0;}
+    .sn{font-size:8px;color:var(--muted);text-align:center;flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-family:var(--mono);transition:color 0.3s;padding:0 2px;}
+    .sn.active{color:var(--green);font-weight:700;}
+    .sn.myst{color:var(--orange);font-weight:700;}
+    .sdisplay{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-top:10px;display:flex;align-items:center;justify-content:space-between;}
+    .sdl{font-size:10px;color:var(--muted);font-family:var(--mono);}
+    .sdn{font-size:13px;font-weight:600;margin-top:2px;}
+    .etan{font-size:22px;font-weight:700;font-family:var(--mono);color:var(--green);}
+    .etal{font-size:10px;color:var(--muted);font-family:var(--mono);text-align:right;}
+    .hbadge{display:inline-block;background:var(--orange-dim);color:var(--orange);border:1px solid var(--orange);border-radius:99px;padding:2px 7px;font-size:10px;font-family:var(--mono);margin-left:5px;animation:blink 1s infinite;}
+    .abadge{display:block;margin-top:5px;background:var(--green-dim);color:var(--green);border:1px solid var(--green);border-radius:8px;padding:5px 10px;font-size:11px;font-family:var(--mono);}
+    .ibox{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-top:8px;font-size:11px;color:var(--muted);font-family:var(--mono);line-height:1.8;}
+    .tmi{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);}
+    .tmi:last-child{border-bottom:none;}
+    .tdot{width:10px;height:10px;border-radius:50%;margin-right:10px;flex-shrink:0;}
+    .tname{font-size:13px;font-weight:500;}
+    .tsub{font-size:11px;color:var(--muted);font-family:var(--mono);}
+    .epill{font-size:12px;font-weight:700;font-family:var(--mono);padding:4px 10px;border-radius:99px;}
+    .enow{background:var(--green-dim);color:var(--green);border:1px solid var(--green);}
+    .esoon{background:var(--orange-dim);color:var(--orange);border:1px solid var(--orange);}
+    .elater{background:var(--surface2);color:var(--muted);border:1px solid var(--border);}
+
+    /* COACH */
+    .ls{display:none;text-align:center;padding:20px;}
+    .ls.on{display:block;}
+    .ldr{width:28px;height:28px;border:3px solid var(--border);border-top:3px solid var(--green);border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto 10px;}
+    .lst{font-size:11px;color:var(--muted);font-family:var(--mono);}
+    .lstep{font-size:10px;color:var(--border);padding:2px 0;font-family:var(--mono);transition:color 0.3s;}
+    .lstep.done{color:var(--green);}.lstep.active{color:var(--text);}
+    .sumrow{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;}
+    .sumc{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:8px;text-align:center;}
+    .sumv{font-size:16px;font-weight:700;font-family:var(--mono);}
+    .suml{font-size:9px;color:var(--muted);margin-top:2px;}
+    .cgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
+    .cc{border-radius:10px;padding:10px 6px;text-align:center;border:1px solid transparent;transition:all 0.5s;}
+    .cc.low{background:#001A0F;border-color:#00D68F44;}
+    .cc.medium{background:#1A0F00;border-color:#FFB34744;}
+    .cc.high{background:#1A0000;border-color:#FF6B6B44;}
+    .cc.ladies{background:#1A0010;border-color:var(--pink);border-width:2px;}
+    .cid{font-size:9px;color:var(--muted);margin-bottom:3px;font-family:var(--mono);}
+    .cpct{font-size:18px;font-weight:700;font-family:var(--mono);transition:all 0.5s;}
+    .cc.low .cpct{color:var(--green);}.cc.medium .cpct{color:var(--orange);}.cc.high .cpct{color:var(--red);}.cc.ladies .cpct{color:var(--pink);}
+    .cbadge{font-size:8px;padding:2px 6px;border-radius:99px;margin-top:3px;display:inline-block;font-family:var(--mono);}
+    .cc.low .cbadge{background:var(--green-dim);color:var(--green);}
+    .cc.medium .cbadge{background:var(--orange-dim);color:var(--orange);}
+    .cc.high .cbadge{background:var(--red-dim);color:var(--red);}
+    .cc.ladies .cbadge{background:var(--pink-dim);color:var(--pink);}
+    .cbar{height:3px;background:var(--border);border-radius:2px;margin-top:6px;overflow:hidden;}
+    .cbarf{height:100%;border-radius:2px;transition:width 0.8s ease;}
+    .cc.low .cbarf{background:var(--green);}.cc.medium .cbarf{background:var(--orange);}.cc.high .cbarf{background:var(--red);}.cc.ladies .cbarf{background:var(--pink);}
+    .legend{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;}
+    .leg{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted);}
+    .ldot{width:7px;height:7px;border-radius:2px;}
+    .density-update-badge{font-size:10px;color:var(--green);font-family:var(--mono);margin-bottom:8px;animation:fadeUp 0.3s ease;}
+
+    /* NEAREST */
+    .near-station-card{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;animation:slideIn 0.3s ease;cursor:pointer;transition:all 0.2s;}
+    .near-station-card:hover{border-color:var(--green);}
+    .near-station-card.top{border-color:var(--green);background:linear-gradient(135deg,var(--surface2),#001A0F);}
+    .near-rank{font-size:10px;font-family:var(--mono);color:var(--muted);margin-bottom:4px;}
+    .near-name{font-size:16px;font-weight:700;margin-bottom:4px;}
+    .near-dist{font-size:12px;color:var(--muted);font-family:var(--mono);margin-bottom:8px;}
+    .near-meta{display:flex;gap:8px;flex-wrap:wrap;}
+    .near-tag{font-size:10px;padding:3px 8px;border-radius:99px;font-family:var(--mono);}
+    .near-tag.green{background:var(--green-dim);color:var(--green);border:1px solid var(--green);}
+    .near-tag.orange{background:var(--orange-dim);color:var(--orange);border:1px solid var(--orange);}
+    .near-tag.gray{background:var(--surface);color:var(--muted);border:1px solid var(--border);}
+    .parking-tip{background:var(--green-dim);border:1px solid var(--green);border-radius:10px;padding:10px 14px;font-size:12px;color:var(--green);line-height:1.6;margin-top:10px;}
+    .parking-no{background:var(--orange-dim);border:1px solid var(--orange);color:var(--orange);}
+
+    /* FARE */
+    .fare-compare{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+    .fc-item{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center;}
+    .fc-item.single{border-color:var(--green);}
+    .fc-item.ret{border-color:var(--orange);}
+    .fc-price{font-size:32px;font-weight:700;font-family:var(--mono);}
+    .fc-item.single .fc-price{color:var(--green);}
+    .fc-item.ret .fc-price{color:var(--orange);}
+    .fc-type{font-size:11px;color:var(--muted);margin-top:4px;}
+    .info-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;}
+    .info-row:last-child{border-bottom:none;}
+    .info-key{color:var(--muted);}
+    .info-val{font-weight:600;font-family:var(--mono);}
+    .fare-result{display:none;}
+    .fare-result.on{display:block;animation:fadeUp 0.4s ease;}
+
+    /* TOURISM */
+    .spot-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:12px;animation:slideIn 0.3s ease;}
+    .spot-img{width:100%;height:140px;object-fit:cover;display:block;background:var(--surface2);}
+    .spot-img-placeholder{width:100%;height:140px;background:linear-gradient(135deg,var(--surface2),var(--surface));display:flex;align-items:center;justify-content:center;font-size:32px;}
+    .spot-body{padding:12px;}
+    .spot-name{font-size:15px;font-weight:600;margin-bottom:6px;}
+    .spot-meta{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap;}
+    .spot-dist{font-size:11px;background:var(--surface2);border:1px solid var(--border);border-radius:99px;padding:3px 8px;color:var(--muted);font-family:var(--mono);}
+    .spot-mode{font-size:11px;background:var(--green-dim);border:1px solid var(--green);border-radius:99px;padding:3px 8px;color:var(--green);}
+    .spot-desc{font-size:12px;color:var(--muted);line-height:1.6;}
+
+    /* BLUEPRINT */
+    .bp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
+    .bp-item{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 8px;text-align:center;}
+    .bp-item.avail{border-color:var(--green);background:#001A0F;}
+    .bp-item.unavail{opacity:0.5;}
+    .bp-icon{font-size:22px;margin-bottom:4px;}
+    .bp-lbl{font-size:10px;color:var(--muted);font-family:var(--mono);}
+    .bp-item.avail .bp-lbl{color:var(--green);}
+    .exit-item{display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;margin-bottom:6px;font-size:13px;}
+    .bp-tip{background:var(--orange-dim);border:1px solid var(--orange);border-radius:10px;padding:10px 14px;font-size:12px;color:var(--orange);line-height:1.5;}
+
+    /* BOOK TICKET */
+    .ticket-type{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+    .tt{padding:14px;border:1px solid var(--border);border-radius:10px;background:var(--surface2);color:var(--muted);cursor:pointer;text-align:center;font-size:13px;font-weight:500;transition:all 0.2s;}
+    .tt.sel{border-color:var(--green);background:var(--green-dim);color:var(--green);}
+    .tt-icon{font-size:24px;margin-bottom:6px;display:block;}
+    .pax-row{display:flex;align-items:center;justify-content:space-between;padding:12px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;margin-bottom:12px;}
+    .pax-ctrl{display:flex;align-items:center;gap:12px;}
+    .pax-btn{width:32px;height:32px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;}
+    .pax-btn:hover{border-color:var(--green);color:var(--green);}
+    .pax-count{font-size:18px;font-weight:700;font-family:var(--mono);min-width:30px;text-align:center;}
+    .booking-confirm{display:none;animation:fadeUp 0.4s ease;}
+    .booking-confirm.on{display:block;}
+    .qr-box{width:120px;height:120px;background:white;border-radius:12px;margin:16px auto;display:flex;align-items:center;justify-content:center;font-size:11px;color:#333;text-align:center;padding:8px;font-family:var(--mono);}
+    .booking-id{font-family:var(--mono);font-size:16px;color:var(--green);background:var(--green-dim);padding:8px 16px;border-radius:8px;display:inline-block;margin-top:8px;}
+
+    /* PLAN MY DAY */
+    .journey-segment{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:10px;position:relative;}
+    .seg-num{position:absolute;top:-8px;left:12px;background:var(--green);color:#000;font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;font-family:var(--mono);}
+    .seg-remove{position:absolute;top:8px;right:8px;background:var(--red-dim);border:1px solid var(--red);border-radius:6px;color:var(--red);font-size:11px;cursor:pointer;padding:2px 8px;}
+    .plan-result{display:none;animation:fadeUp 0.4s ease;}
+    .plan-result.on{display:block;}
+    .plan-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
+    .plan-item:last-child{border-bottom:none;}
+    .plan-time{font-family:var(--mono);font-size:12px;color:var(--green);min-width:50px;}
+    .plan-detail{flex:1;}
+    .plan-title{font-size:13px;font-weight:600;margin-bottom:2px;}
+    .plan-sub{font-size:11px;color:var(--muted);}
+
+    /* DAILY PASS */
+    .pass-grid{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:12px;}
+    .pass-card{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:16px;cursor:pointer;transition:all 0.2s;position:relative;}
+    .pass-card:hover{border-color:var(--green);}
+    .pass-card.sel{border-color:var(--green);background:var(--green-dim);}
+    .pass-name{font-size:16px;font-weight:700;margin-bottom:4px;}
+    .pass-price{font-size:28px;font-weight:700;font-family:var(--mono);color:var(--green);}
+    .pass-desc{font-size:12px;color:var(--muted);margin-top:4px;}
+    .pass-badge{position:absolute;top:10px;right:10px;background:var(--orange-dim);color:var(--orange);border:1px solid var(--orange);border-radius:99px;padding:2px 8px;font-size:10px;font-family:var(--mono);}
+    .pass-confirm{display:none;animation:fadeUp 0.4s ease;}
+    .pass-confirm.on{display:block;}
+    .pass-visual{background:linear-gradient(135deg,#1D9E75,#0F6E56);border-radius:14px;padding:20px;margin-bottom:12px;color:#fff;}
+    .pass-visual-title{font-size:12px;opacity:0.8;font-family:var(--mono);margin-bottom:4px;}
+    .pass-visual-name{font-size:20px;font-weight:700;margin-bottom:12px;}
+    .pass-visual-meta{display:flex;justify-content:space-between;font-size:11px;opacity:0.8;font-family:var(--mono);}
+
+    /* CARD RECHARGE */
+    .amount-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;}
+    .amt-btn{padding:14px 8px;border:1px solid var(--border);border-radius:10px;background:var(--surface2);color:var(--text);cursor:pointer;text-align:center;font-size:14px;font-weight:600;font-family:var(--mono);transition:all 0.2s;}
+    .amt-btn:hover{border-color:var(--green);}
+    .amt-btn.sel{border-color:var(--green);background:var(--green-dim);color:var(--green);}
+    .card-visual{background:linear-gradient(135deg,#1a1a2e,#16213e);border-radius:14px;padding:20px;margin-bottom:12px;border:1px solid var(--border);}
+    .card-num{font-family:var(--mono);font-size:14px;color:var(--muted);letter-spacing:2px;margin-bottom:8px;}
+    .card-balance{font-size:28px;font-weight:700;color:var(--green);font-family:var(--mono);}
+    .card-label{font-size:10px;color:var(--muted);font-family:var(--mono);}
+    .recharge-confirm{display:none;animation:fadeUp 0.4s ease;}
+    .recharge-confirm.on{display:block;}
+  </style>
+</head>
+<body>
+<div class="app">
+
+<!-- SIGNUP -->
+<div class="screen on" id="pgSignup">
+  <div class="signup-page">
+    <div class="su-logo">🚇</div>
+    <h1 style="font-size:32px;font-weight:700;margin-bottom:6px;">TrackMate</h1>
+    <p style="font-size:14px;color:var(--muted);margin-bottom:40px;text-align:center;line-height:1.6;">Your smart Namma Metro companion.<br>Sign up to get started.</p>
+    <div class="su-card">
+      <label class="su-lbl">Full Name</label>
+      <input class="su-input" id="suName" type="text" placeholder="Enter your name"/>
+      <label class="su-lbl">Phone Number</label>
+      <input class="su-input" id="suPhone" type="tel" placeholder="+91 00000 00000"/>
+      <label class="su-lbl">City</label>
+      <input class="su-input" id="suCity" type="text" placeholder="Bengaluru"/>
+      <button class="su-btn" onclick="doSignup()">Get Started →</button>
+      <div class="su-terms">By continuing you agree to our Terms of Service.<br>Data stored locally on this device only.</div>
+    </div>
+  </div>
+</div>
+
+<!-- LANDING -->
+<div class="screen" id="pgLanding">
+  <div class="l-header">
+    <div class="l-logo-row">
+      <div class="l-logo">🚇</div>
+      <div style="font-size:17px;font-weight:700;">TrackMate</div>
+    </div>
+    <div class="upill">
+      <div class="uavatar" id="uAvatar">N</div>
+      <div class="uname" id="uName">Nidhi</div>
+    </div>
+  </div>
+  <div class="lc">
+    <div style="margin-bottom:20px;">
+      <div class="greet-text" id="greetTxt">Good morning! 👋</div>
+      <div class="greet-sub">Where are you headed today?</div>
+      <div class="live-badge" style="margin-top:8px;"><div class="live-dot"></div>Metro services running</div>
+    </div>
+
+    <div class="slabel">🟢 Live Features</div>
+    <div style="margin-bottom:16px;">
+      <div class="fc live" onclick="goTo('pgJourney')" style="display:flex;align-items:center;gap:16px;padding:18px;">
+        <span style="font-size:36px;">🚇</span>
+        <div>
+          <span class="fc-badge bl" style="position:static;display:inline-block;margin-bottom:6px;">LIVE</span>
+          <div class="fc-name" style="font-size:15px;">Train Tracker + Coach Density</div>
+          <div class="fc-desc">Track your train live with real-time coach occupancy</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="slabel">🔧 More Features</div>
+    <div class="fgrid">
+      <div class="fc live" onclick="goTo('pgNearest')">
+        <span class="fc-badge bl">LIVE</span>
+        <span class="fc-icon">📍</span>
+        <div class="fc-name">Nearest Station</div>
+        <div class="fc-desc">Find closest metro + parking info</div>
+      </div>
+      <div class="fc live" onclick="goTo('pgTourism')">
+        <span class="fc-badge bl">LIVE</span>
+        <span class="fc-icon">🗺️</span>
+        <div class="fc-name">Tourism Guide</div>
+        <div class="fc-desc">Discover spots near any station</div>
+      </div>
+      <div class="fc live" onclick="goTo('pgBlueprint')">
+        <span class="fc-badge bl">LIVE</span>
+        <span class="fc-icon">🏛️</span>
+        <div class="fc-name">Station Blueprint</div>
+        <div class="fc-desc">Facilities, exits and parking</div>
+      </div>
+      <div class="fc live" onclick="goTo('pgBooking')">
+        <span class="fc-badge bl">NEW</span>
+        <span class="fc-icon">🎟️</span>
+        <div class="fc-name">Book Ticket</div>
+        <div class="fc-desc">Single & return journey tickets</div>
+      </div>
+      <div class="fc live" onclick="goTo('pgPlanDay')">
+        <span class="fc-badge bl">NEW</span>
+        <span class="fc-icon">🗓️</span>
+        <div class="fc-name">Plan My Day</div>
+        <div class="fc-desc">Smart metro journey planner</div>
+      </div>
+      <div class="fc live" onclick="goTo('pgDailyPass')">
+        <span class="fc-badge bl">NEW</span>
+        <span class="fc-icon">🪙</span>
+        <div class="fc-name">Daily Pass</div>
+        <div class="fc-desc">Unlimited rides for a day</div>
+      </div>
+      <div class="fc live" onclick="goTo('pgRecharge')">
+        <span class="fc-badge bl">NEW</span>
+        <span class="fc-icon">💳</span>
+        <div class="fc-name">Card Recharge</div>
+        <div class="fc-desc">Top up your smart card</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- JOURNEY -->
+<div class="screen" id="pgJourney">
+  <div class="app-header">
+    <div class="back-btn" onclick="goTo('pgLanding')">←</div>
+    <div class="hdr-title">My Journey</div>
+    <div class="live-sm"><div class="live-dot"></div>LIVE</div>
+  </div>
+  <div class="content">
+    <div class="card">
+      <div class="clabel">Plan Your Journey</div>
+      <div class="row2">
+        <div><div class="lbl">MY STATION</div><select id="jFrom" style="margin-bottom:0;"></select></div>
+        <div><div class="lbl">GOING TO</div><select id="jTo" style="margin-bottom:0;"></select></div>
+      </div>
+      <button class="btn" style="margin-top:10px;" id="trackBtn" onclick="fetchAll()">🚇 Track Train + Check Density</button>
+    </div>
+    <div class="combined-result" id="combinedResult">
+      <div class="eta-card">
+        <div class="rrow">
+          <div class="rsec">🗺️ Train Approaching You</div>
+          <button class="rbtn" id="rbtn" onclick="refreshAll()"><span class="ri">↻</span> Refresh</button>
+        </div>
+        <div class="utext" id="utext">—</div>
+        <div class="tw">
+          <div class="tmrk" id="tmrk">🚇</div>
+          <div class="sdots" id="sdots"></div>
+          <div class="trl"><div class="trp" id="trp"></div></div>
+          <div class="snames" id="snames"></div>
+        </div>
+        <div class="sdisplay">
+          <div style="flex:1;"><div class="sdl">TRAIN CURRENTLY AT</div><div class="sdn" id="curSt">—</div></div>
+          <div style="text-align:right;"><div class="etan" id="etaN">--</div><div class="etal">MINS TO YOUR STATION</div></div>
+        </div>
+        <div class="ibox" id="ibox"></div>
+        <div style="margin-top:12px;">
+          <div class="rsec" style="margin-bottom:8px;">🕐 Upcoming Trains</div>
+          <div id="trainList"></div>
+        </div>
+      </div>
+      <div class="density-card">
+        <div class="rrow">
+          <div class="rsec">🎯 Coach Density — <span id="dtLabel" style="color:var(--green);">Train 4201</span></div>
+        </div>
+        <div id="densityUpdateBadge" style="display:none;" class="density-update-badge">↻ Updated at station stop</div>
+        <div class="ls" id="dLoader">
+          <div class="ldr"></div>
+          <div class="lst">Running YOLO inference...</div>
+          <div style="margin-top:8px;">
+            <div class="lstep" id="s1">▸ Scanning coach cameras</div>
+            <div class="lstep" id="s2">▸ Running detection</div>
+            <div class="lstep" id="s3">▸ Computing density</div>
+            <div class="lstep" id="s4">▸ Preparing results</div>
+          </div>
+        </div>
+        <div id="dResult" style="display:none;">
+          <div class="sumrow">
+            <div class="sumc"><div class="sumv" id="avgPct" style="color:var(--green)">--</div><div class="suml">AVG LOAD</div></div>
+            <div class="sumc"><div class="sumv" id="bestC" style="color:var(--green)">--</div><div class="suml">BEST COACH</div></div>
+            <div class="sumc"><div class="sumv" id="crowdC" style="color:var(--red)">--</div><div class="suml">MOST CROWDED</div></div>
+          </div>
+          <div class="cgrid" id="coachGrid"></div>
+          <div class="legend">
+            <div class="leg"><div class="ldot" style="background:var(--pink)"></div>Ladies Only</div>
+            <div class="leg"><div class="ldot" style="background:var(--green)"></div>Low</div>
+            <div class="leg"><div class="ldot" style="background:var(--orange)"></div>Medium</div>
+            <div class="leg"><div class="ldot" style="background:var(--red)"></div>High</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- NEAREST STATION -->
+<div class="screen" id="pgNearest">
+  <div class="app-header">
+    <div class="back-btn" onclick="goTo('pgLanding')">←</div>
+    <div class="hdr-title">📍 Nearest Metro Station</div>
+  </div>
+  <div class="content">
+    <div class="card">
+      <div class="clabel">Find Station Near You</div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.6;">TrackMate will use your GPS to find the top 3 nearest Namma Metro stations with parking and travel info.</p>
+      <button class="btn" onclick="detectLocation()">📍 Detect My Location</button>
+    </div>
+    <div id="nearLoading" style="display:none;" class="card" style="text-align:center;padding:30px;">
+      <div class="ldr" style="margin:0 auto 12px;"></div>
+      <div class="lst">Detecting your location...</div>
+    </div>
+    <div id="nearResults"></div>
+  </div>
+</div>
+
+<!-- FARE CALCULATOR -->
+<div class="screen" id="pgFare">
+  <div class="app-header">
+    <div class="back-btn" onclick="goTo('pgLanding')">←</div>
+    <div class="hdr-title">🧮 Fare Calculator</div>
+  </div>
+  <div class="content">
+    <div class="card">
+      <div class="clabel">Calculate Your Fare</div>
+      <div class="row2">
+        <div><div class="lbl">FROM</div><select id="fareFrom" style="margin-bottom:0;"></select></div>
+        <div><div class="lbl">TO</div><select id="fareTo" style="margin-bottom:0;"></select></div>
+      </div>
+      <button class="btn" style="margin-top:10px;" onclick="calcFare()">Calculate Fare</button>
+    </div>
+    <div class="fare-result" id="fareResult">
+      <div class="fare-compare">
+        <div class="fc-item single"><div class="fc-price" id="fareSingle">₹0</div><div class="fc-type">Single Journey</div></div>
+        <div class="fc-item ret"><div class="fc-price" id="fareReturn">₹0</div><div class="fc-type">Return Journey</div></div>
+      </div>
+      <div class="card">
+        <div class="clabel">Journey Details</div>
+        <div class="info-row"><span class="info-key">From</span><span class="info-val" id="fdFrom">—</span></div>
+        <div class="info-row"><span class="info-key">To</span><span class="info-val" id="fdTo">—</span></div>
+        <div class="info-row"><span class="info-key">Stops</span><span class="info-val" id="fdStops">—</span></div>
+        <div class="info-row"><span class="info-key">Distance</span><span class="info-val" id="fdDist">—</span></div>
+        <div class="info-row"><span class="info-key">Est. Time</span><span class="info-val" id="fdTime">—</span></div>
+      </div>
+      <div class="card" style="background:var(--surface2);">
+        <div class="clabel">Namma Metro Fare Chart</div>
+        <div style="font-size:11px;color:var(--muted);font-family:var(--mono);line-height:2.2;">
+          0–2 km → ₹10 &nbsp;|&nbsp; 2–4 km → ₹15 &nbsp;|&nbsp; 4–6 km → ₹20<br>
+          6–8 km → ₹25 &nbsp;|&nbsp; 8–12 km → ₹30 &nbsp;|&nbsp; 12–16 km → ₹35<br>
+          16–20 km → ₹40 &nbsp;|&nbsp; 20–24 km → ₹45 &nbsp;|&nbsp; 24–28 km → ₹50<br>
+          28–32 km → ₹55 &nbsp;|&nbsp; 32+ km → ₹60
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOURISM -->
+<div class="screen" id="pgTourism">
+  <div class="app-header">
+    <div class="back-btn" onclick="goTo('pgLanding')">←</div>
+    <div class="hdr-title">🗺️ Tourism Guide</div>
+  </div>
+  <div class="content">
+    <div class="card">
+      <div class="clabel">Select Station</div>
+      <select id="tourStation" onchange="loadTourism()"></select>
+      <p style="font-size:12px;color:var(--muted);">Discover tourist spots, cafes and attractions near any Namma Metro station.</p>
+    </div>
+    <div id="tourResults"></div>
+  </div>
+</div>
+
+<!-- BLUEPRINT -->
+<div class="screen" id="pgBlueprint">
+  <div class="app-header">
+    <div class="back-btn" onclick="goTo('pgLanding')">←</div>
+    <div class="hdr-title">🏛️ Station Blueprint</div>
+  </div>
+  <div class="content">
+    <div class="card">
+      <div class="clabel">Select Station</div>
+      <select id="bpStation" onchange="loadBlueprint()"></select>
+    </div>
+    <div id="bpResult"></div>
+  </div>
+</div>
+
+<!-- BOOK TICKET -->
+<div class="screen" id="pgBooking">
+  <div class="app-header">
+    <div class="back-btn" onclick="goTo('pgLanding')">←</div>
+    <div class="hdr-title">🎟️ Book Ticket</div>
+  </div>
+  <div class="content">
+    <div id="bookingForm">
+      <div class="card">
+        <div class="clabel">Journey Details</div>
+        <div class="row2">
+          <div><div class="lbl">FROM</div><select id="bkFrom" style="margin-bottom:0;"></select></div>
+          <div><div class="lbl">TO</div><select id="bkTo" style="margin-bottom:0;"></select></div>
+        </div>
+        <div style="margin-top:10px;">
+          <div class="lbl">TRAVEL DATE</div>
+          <input type="date" id="bkDate"/>
+        </div>
+      </div>
+      <div class="card">
+        <div class="clabel">Ticket Type</div>
+        <div class="ticket-type">
+          <div class="tt sel" id="tt-single" onclick="selectTicketType('single')">
+            <span class="tt-icon">🎫</span>
+            <div style="font-weight:600;">Single</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px;">One way trip</div>
+          </div>
+          <div class="tt" id="tt-return" onclick="selectTicketType('return')">
+            <span class="tt-icon">🎟️</span>
+            <div style="font-weight:600;">Return</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px;">Both ways</div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="clabel">Passengers</div>
+        <div class="pax-row">
+          <div style="font-size:13px;font-weight:500;">Number of Passengers</div>
+          <div class="pax-ctrl">
+            <div class="pax-btn" onclick="changePax(-1)">−</div>
+            <div class="pax-count" id="paxCount">1</div>
+            <div class="pax-btn" onclick="changePax(1)">+</div>
+          </div>
+        </div>
+      </div>
+      <div class="card" id="bookingSummary" style="display:none;">
+        <div class="clabel">Booking Summary</div>
+        <div class="info-row"><span class="info-key">Route</span><span class="info-val" id="bkRoute">—</span></div>
+        <div class="info-row"><span class="info-key">Type</span><span class="info-val" id="bkType">—</span></div>
+        <div class="info-row"><span class="info-key">Date</span><span class="info-val" id="bkDateDisp">—</span></div>
+        <div class="info-row"><span class="info-key">Passengers</span><span class="info-val" id="bkPax">—</span></div>
+        <div class="info-row"><span class="info-key">Fare</span><span class="info-val" id="bkFare" style="color:var(--green);font-size:16px;">—</span></div>
+      </div>
+      <button class="btn" onclick="previewBooking()">Preview Booking</button>
+      <button class="btn btn-orange" id="confirmBkBtn" style="display:none;margin-top:8px;" onclick="confirmBooking()">Confirm & Pay ₹<span id="payAmt">0</span></button>
+    </div>
+    <div class="booking-confirm" id="bookingConfirm">
+      <div class="card" style="text-align:center;padding:24px;">
+        <div style="font-size:48px;margin-bottom:12px;">✅</div>
+        <div style="font-size:20px;font-weight:700;color:var(--green);margin-bottom:8px;">Booking Confirmed!</div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:16px;" id="bkConfirmText">Your ticket has been booked.</div>
+        <div class="qr-box" id="qrBox">QR Code<br>▪▫▪<br>▫▪▫<br>▪▫▪</div>
+        <div class="booking-id" id="bookingId">TM-000000</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:12px;font-family:var(--mono);">Show this QR at the station gates</div>
+        <button class="btn" style="margin-top:16px;" onclick="resetBooking()">Book Another Ticket</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DAILY PASS -->
+<div class="screen" id="pgDailyPass">
+  <div class="app-header">
+    <div class="back-btn" onclick="goTo('pgLanding')">←</div>
+    <div class="hdr-title">🪙 Daily Pass</div>
+  </div>
+  <div class="content">
+    <div id="passForm">
+      <div class="card">
+        <div class="clabel">Choose Your Pass</div>
+        <div class="pass-grid">
+          <div class="pass-card sel" id="pass-1day" onclick="selectPass('1day',50)">
+            <div class="pass-badge">POPULAR</div>
+            <div class="pass-name">1 Day Pass</div>
+            <div class="pass-price">₹50</div>
+            <div class="pass-desc">Unlimited rides for 24 hours from first use</div>
+          </div>
+          <div class="pass-card" id="pass-3day" onclick="selectPass('3day',120)">
+            <div class="pass-name">3 Day Pass</div>
+            <div class="pass-price">₹120</div>
+            <div class="pass-desc">Unlimited rides for 3 consecutive days</div>
+          </div>
+          <div class="pass-card" id="pass-7day" onclick="selectPass('7day',250)">
+            <div class="pass-badge" style="background:var(--purple-dim,#A855F722);color:var(--purple);border-color:var(--purple);">BEST VALUE</div>
+            <div class="pass-name">7 Day Pass</div>
+            <div class="pass-price">₹250</div>
+            <div class="pass-desc">Unlimited rides for 7 consecutive days</div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="clabel">Start Date</div>
+        <input type="date" id="passDate"/>
+        <button class="btn" onclick="purchasePass()">Purchase Pass</button>
+      </div>
+    </div>
+    <div class="pass-confirm" id="passConfirm">
+      <div class="pass-visual">
+        <div class="pass-visual-title">NAMMA METRO PASS</div>
+        <div class="pass-visual-name" id="passVisualName">1 Day Pass</div>
+        <div style="font-size:28px;font-weight:700;margin-bottom:12px;" id="passVisualPrice">₹50</div>
+        <div class="pass-visual-meta">
+          <span>Valid: <span id="passValidFrom">—</span></span>
+          <span>to <span id="passValidTo">—</span></span>
+        </div>
+        <div style="margin-top:10px;font-size:11px;opacity:0.8;font-family:var(--mono);" id="passHolderName">HOLDER: —</div>
+      </div>
+      <div class="card" style="text-align:center;">
+        <div class="qr-box">PASS QR<br>▪▫▪<br>▫▪▫<br>▪▫▪</div>
+        <div class="booking-id" id="passId">TMP-000000</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:8px;font-family:var(--mono);">Tap card at gates — unlimited rides!</div>
+        <button class="btn" style="margin-top:16px;" onclick="resetPass()">Buy Another Pass</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CARD RECHARGE -->
+<div class="screen" id="pgRecharge">
+  <div class="app-header">
+    <div class="back-btn" onclick="goTo('pgLanding')">←</div>
+    <div class="hdr-title">💳 Card Recharge</div>
+  </div>
+  <div class="content">
+    <div id="rechargeForm">
+      <div class="card-visual">
+        <div class="card-label">NAMMA METRO SMART CARD</div>
+        <div class="card-num" id="cardNum">**** **** **** ****</div>
+        <div class="card-balance" id="cardBalance">₹0</div>
+        <div class="card-label" style="margin-top:4px;">CURRENT BALANCE</div>
+      </div>
+      <div class="card">
+        <div class="clabel">Card Number</div>
+        <input type="text" id="cardInput" placeholder="Enter 16-digit card number" maxlength="19" oninput="formatCardNum(this)" onchange="loadCardBalance()"/>
+      </div>
+      <div class="card">
+        <div class="clabel">Select Recharge Amount</div>
+        <div class="amount-grid">
+          <div class="amt-btn" onclick="selectAmt(100)">₹100</div>
+          <div class="amt-btn" onclick="selectAmt(200)">₹200</div>
+          <div class="amt-btn" onclick="selectAmt(300)">₹300</div>
+          <div class="amt-btn" onclick="selectAmt(500)">₹500</div>
+          <div class="amt-btn" onclick="selectAmt(1000)">₹1000</div>
+          <div class="amt-btn" onclick="selectAmt(0)">Custom</div>
+        </div>
+        <div id="customAmtDiv" style="display:none;margin-top:10px;">
+          <input type="number" id="customAmt" placeholder="Enter amount (₹50 - ₹2000)"/>
+        </div>
+        <div style="margin-top:8px;padding:10px;background:var(--surface2);border-radius:8px;font-size:12px;color:var(--muted);">
+          Selected: <span style="color:var(--green);font-weight:700;font-family:var(--mono);" id="selectedAmt">None</span>
+        </div>
+      </div>
+      <button class="btn" onclick="rechargeCard()">Recharge Now</button>
+    </div>
+    <div class="recharge-confirm" id="rechargeConfirm">
+      <div class="card" style="text-align:center;padding:24px;">
+        <div style="font-size:48px;margin-bottom:12px;">💳✅</div>
+        <div style="font-size:20px;font-weight:700;color:var(--green);margin-bottom:8px;">Recharge Successful!</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:16px;" id="rechargeText">Your card has been recharged.</div>
+        <div class="card-visual" style="text-align:left;margin-bottom:0;">
+          <div class="card-label">NAMMA METRO SMART CARD</div>
+          <div class="card-num" id="rechargeCardNum">**** **** **** ****</div>
+          <div class="card-balance" id="newBalance">₹0</div>
+          <div class="card-label" style="margin-top:4px;">NEW BALANCE</div>
+        </div>
+        <button class="btn" style="margin-top:16px;" onclick="resetRecharge()">Recharge Again</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+<script>
+const API = 'http://localhost:8000';
+
+const PURPLE_LINE = [
+  "Challaghatta","Kengeri","Kengeri Bus Terminal","Pattanagere",
+  "Jnanabharathi","Rajarajeshwari Nagar","Nayandahalli","Mysuru Road",
+  "Deepanjali Nagar","Attiguppe","Vijayanagar","Hosahalli",
+  "Magadi Road","City Railway Station","Majestic (KSR)","Sir M Visvesvaraya",
+  "Vidhana Soudha","Cubbon Park","MG Road","Trinity","Halasuru",
+  "Indiranagar","Swami Vivekananda Road","Baiyappanahalli",
+  "Benniganahalli","KR Pura","Singayyanapalya","Garudacharapalya",
+  "Hoodi","Seetharampalya","Kundalahalli","Nallurhalli",
+  "Sri Sathya Sai Hospital","Pattandur Agrahara","Kadugodi Tree Park",
+  "Hopefarm Channasandra","Whitefield (Kadugodi)"
+];
+const GREEN_LINE = [
+  "Madavara","Chikkabidarakallu","Manjunatha Nagar","Nagasandra",
+  "Dasarahalli","Jalahalli","Peenya Industry","Peenya",
+  "Goraguntepalya","Yeshwanthpur","Sandal Soap Factory","Mahalakshmi",
+  "Rajajinagar","Kuvempu Road","Srirampura","Mantri Square Sampige Road",
+  "Majestic (KSR)","Chickpete","Krishna Rajendra Market","National College",
+  "Lalbagh","Rashtreeya Vidyalaya Road","South End Circle","Jayanagar",
+  "Jayanagar 4th Block","Yelachenahalli","Doddakallasandra",
+  "Konankunte Cross","Vajrahalli","Thalaghattapura","Silk Institute"
+];
+const ALL_STATIONS = [...new Set([...PURPLE_LINE, ...GREEN_LINE])];
+
+// Tourist spots with images (using Unsplash for real photos)
+const TOURIST_SPOTS = {
+  "MG Road":[
+    {name:"Cubbon Park",dist:"1.2 km",mode:"🚶 Walk (~15 min)",img:"https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Cubbon_park_from_air.jpg/640px-Cubbon_park_from_air.jpg",desc:"A sprawling 300-acre botanical garden established in 1870. Home to over 6000 trees, a glass house, and beautiful walking paths. Perfect for a peaceful morning stroll amidst the concrete jungle of Bengaluru. Entry is free."},
+    {name:"Commercial Street",dist:"0.8 km",mode:"🚶 Walk (~10 min)",img:"https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Commercial_Street%2C_Bangalore.jpg/640px-Commercial_Street%2C_Bangalore.jpg",desc:"Bengaluru's most famous shopping street, lined with over 200 shops selling clothes, jewellery, accessories and street food. Best visited in the evening. Bargaining is expected and encouraged at most shops."},
+    {name:"St. Mark's Cathedral",dist:"0.5 km",mode:"🚶 Walk (~6 min)",img:"https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/St._Mark%27s_Cathedral%2C_Bangalore.jpg/640px-St._Mark%27s_Cathedral%2C_Bangalore.jpg",desc:"A stunning 19th century cathedral built in 1812, one of the oldest churches in Bengaluru. Features beautiful stained glass windows and peaceful gardens. Open daily for visitors. Photography allowed outside."}
+  ],
+  "Cubbon Park":[
+    {name:"Cubbon Park",dist:"0.1 km",mode:"🚶 Walk (~2 min)",img:"https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Cubbon_park_from_air.jpg/640px-Cubbon_park_from_air.jpg",desc:"300-acre botanical garden, one of Bengaluru's most loved green spaces. Home to rare trees, a glass house, the Karnataka High Court and several museums. Ideal for morning jogs and picnics. Free entry, open all days."},
+    {name:"Vidhana Soudha",dist:"0.8 km",mode:"🚶 Walk (~10 min)",img:"https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Vidhana_Soudha%2C_Bangalore.jpg/640px-Vidhana_Soudha%2C_Bangalore.jpg",desc:"The iconic seat of Karnataka's state legislature, built in 1956 in Dravidian-Gothic style. Lit spectacularly with thousands of lights on Sunday evenings and national holidays. Photography from the outside is a must."},
+    {name:"Karnataka State Museum",dist:"0.4 km",mode:"🚶 Walk (~5 min)",img:"https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Government_Museum_Bangalore.jpg/640px-Government_Museum_Bangalore.jpg",desc:"One of the oldest museums in India, housing rich collections of art, sculpture, natural history and archaeological finds. Includes separate sections for geology, zoology and coins. Entry: ₹20 for adults."}
+  ],
+  "Majestic (KSR)":[
+    {name:"Tipu Sultan's Summer Palace",dist:"2.5 km",mode:"🛺 Auto (~₹40, 10 min)",img:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Tipu_Sultan%27s_Summer_Palace_Bangalore.jpg/640px-Tipu_Sultan%27s_Summer_Palace_Bangalore.jpg",desc:"An exquisite 18th century palace of Tipu Sultan built entirely of teak wood. Features stunning Indo-Islamic architecture with ornate pillars and beautiful ceilings painted with floral motifs. Entry: ₹15 for Indians. Open all days except national holidays."},
+    {name:"KR Market (City Market)",dist:"1.5 km",mode:"🛺 Auto (~₹30, 8 min)",img:"https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/KR_Market_Bangalore.jpg/640px-KR_Market_Bangalore.jpg",desc:"Asia's largest wholesale flower market and one of Bengaluru's most colourful experiences. Best visited at dawn when fresh flowers arrive. Also sells fruits, vegetables and spices. A photographer's paradise with vibrant colours."},
+    {name:"Bengaluru City Railway Station",dist:"0.2 km",mode:"🚶 Walk (~3 min)",img:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Krantivira_Sangolli_Rayanna_Station%2C_Bangalore.jpg/640px-Krantivira_Sangolli_Rayanna_Station%2C_Bangalore.jpg",desc:"A grand heritage railway station serving millions daily. The façade features beautiful colonial architecture. Worth a quick stop to admire the architecture even if you are not catching a train."}
+  ],
+  "Lalbagh":[
+    {name:"Lalbagh Botanical Garden",dist:"0.3 km",mode:"🚶 Walk (~4 min)",img:"https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Lalbagh_Glass_House_2015.jpg/640px-Lalbagh_Glass_House_2015.jpg",desc:"A 240-acre botanical garden established by Hyder Ali in 1760 and expanded by Tipu Sultan. Features a Victorian glass house modelled on London's Crystal Palace, rare botanical specimens, a 3000 million year old rock formation and beautiful flower shows twice a year. Entry: ₹20."},
+    {name:"Lalbagh Lake",dist:"0.5 km",mode:"🚶 Walk (~6 min)",img:"https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Lalbagh_Lake_Bangalore.jpg/640px-Lalbagh_Lake_Bangalore.jpg",desc:"A serene lake inside Lalbagh gardens, home to numerous migratory birds. Perfect for birdwatching and peaceful walks along the bund. The lake is most beautiful during sunrise and sunset hours."},
+    {name:"Kempe Gowda Tower",dist:"0.8 km",mode:"🚶 Walk (~10 min)",img:"https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Kempe_Gowda_Tower_Lalbagh.jpg/640px-Kempe_Gowda_Tower_Lalbagh.jpg",desc:"A historic watchtower built by Kempe Gowda I in the 16th century, marking the original boundary of Bengaluru. Climb up for panoramic views of the city and Lalbagh gardens. Free entry."}
+  ],
+  "Indiranagar":[
+    {name:"100 Feet Road",dist:"0.3 km",mode:"🚶 Walk (~4 min)",img:"https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/100_feet_road_indiranagar.jpg/640px-100_feet_road_indiranagar.jpg",desc:"Bengaluru's trendiest street, lined with cafes, restaurants, boutiques and bars. Home to some of the city's best dining options including international cuisine. Best experienced in the evening when the street comes alive."},
+    {name:"Ulsoor Lake",dist:"2.5 km",mode:"🛺 Auto (~₹40, 10 min)",img:"https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Ulsoor_Lake_Bangalore.jpg/640px-Ulsoor_Lake_Bangalore.jpg",desc:"A large urban lake spread over 50 acres, maintained by the Bruhat Bengaluru Mahanagara Palike. Offers boating, walking tracks and a children's play area. A peaceful escape from the busy city. Best visited in the early morning."}
+  ],
+  "Yeshwanthpur":[
+    {name:"Orion Mall",dist:"1.5 km",mode:"🛺 Auto (~₹25, 8 min)",img:"https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Orion_Mall_Bangalore.jpg/640px-Orion_Mall_Bangalore.jpg",desc:"One of Bengaluru's largest and most popular malls with over 200 stores, a multiplex cinema, bowling alley and extensive food court. Easily accessible and perfect for a half-day of shopping and dining."},
+    {name:"ISKCON Temple",dist:"3 km",mode:"🛺 Auto (~₹50, 12 min)",img:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/ISKCON_Bangalore.jpg/640px-ISKCON_Bangalore.jpg",desc:"One of the largest ISKCON temples in the world, completed in 1997. Features stunning architecture across multiple levels, beautiful gardens, a multimedia theatre on the life of Krishna and an excellent vegetarian restaurant. Entry is free."}
+  ],
+  "default":[
+    {name:"Explore the Neighbourhood",dist:"0.5 km",mode:"🚶 Walk",img:"",desc:"Take a walk around the area near this station. Bengaluru's neighbourhoods each have their own unique character with local markets, street food stalls and temples worth discovering."},
+    {name:"Local Street Food",dist:"0.8 km",mode:"🚶 Walk",img:"",desc:"Bengaluru is famous for its street food scene. Look for local idli-vada establishments, masala dosa shops and chaat vendors near the station for an authentic taste of the city."}
+  ]
+};
+
+const STATION_INFO = {
+  "MG Road":{exits:["Exit 1: MG Road (North — Brigade Road side)","Exit 2: Residency Road (South side)"],facilities:{washroom:true,atm:true,vending:true,parking:false,lift:true,escalator:true},platforms:2,level:"Underground",tip:"Exit 1 opens directly to the MG Road shopping area. No parking at this station — reach by auto, cab or walk from nearby areas."},
+  "Majestic (KSR)":{exits:["Exit 1: KSR Railway Station (East)","Exit 2: City Market / Gupta Market (West)","Exit 3: Anand Rao Circle (North)"],facilities:{washroom:true,atm:true,vending:true,parking:false,lift:true,escalator:true},platforms:4,level:"Underground",interchange:"🟣 Purple ↔ 🟢 Green Line interchange station",tip:"Busiest station in the network — follow color-coded signs carefully. Purple Line and Green Line have separate platforms. Allow extra time during peak hours."},
+  "Indiranagar":{exits:["Exit 1: CMH Road","Exit 2: 100 Feet Road"],facilities:{washroom:true,atm:true,vending:true,parking:true,lift:true,escalator:true},platforms:2,level:"Elevated",tip:"🅿️ Parking at Exit 2 (below station). ₹20/hr 2-wheelers, ₹40/hr 4-wheelers. Monthly pass available."},
+  "Whitefield (Kadugodi)":{exits:["Exit 1: ITPL Main Road","Exit 2: Kadugodi Village"],facilities:{washroom:true,atm:true,vending:true,parking:true,lift:true,escalator:false},platforms:2,level:"Elevated",tip:"🅿️ Large parking facility at terminus. ₹20/hr for 2-wheelers, ₹40/hr for 4-wheelers. Arrive early on weekdays — fills up by 9 AM."},
+  "Baiyappanahalli":{exits:["Exit 1: Old Madras Road","Exit 2: Kasturinagar"],facilities:{washroom:true,atm:true,vending:false,parking:true,lift:true,escalator:true},platforms:2,level:"Elevated",tip:"🅿️ Terminal station with good parking. Direct bus connections to ITPL and Marathahalli from Exit 1."},
+  "Cubbon Park":{exits:["Exit 1: Cubbon Park Main Gate","Exit 2: Museum Road"],facilities:{washroom:true,atm:false,vending:true,parking:false,lift:true,escalator:true},platforms:2,level:"Underground",tip:"Exit 1 opens directly at the Cubbon Park main entrance — perfect for a visit! No parking available."},
+  "Vidhana Soudha":{exits:["Exit 1: Vidhana Soudha","Exit 2: Raj Bhavan Road"],facilities:{washroom:true,atm:false,vending:false,parking:false,lift:true,escalator:false},platforms:2,level:"Underground",tip:"A 2-minute walk from Exit 1 brings you to Vidhana Soudha. Visit on Sunday evenings for the spectacular light show."},
+  "KR Pura":{exits:["Exit 1: Old Madras Road","Exit 2: KR Pura Main Road"],facilities:{washroom:true,atm:true,vending:true,parking:true,lift:true,escalator:true},platforms:2,level:"Elevated",tip:"🅿️ Good parking facility. Frequent buses to ITPL, Whitefield and Marathahalli from the bus stand outside Exit 1."},
+  "Nagasandra":{exits:["Exit 1: Tumkur Road","Exit 2: Nagasandra Village"],facilities:{washroom:true,atm:true,vending:false,parking:true,lift:true,escalator:false},platforms:2,level:"Elevated",tip:"🅿️ Terminal station with park and ride facility — great for commuters from Tumkur Road and Peenya area."},
+  "Silk Institute":{exits:["Exit 1: Silk Institute Road","Exit 2: NICE Road Junction"],facilities:{washroom:true,atm:false,vending:false,parking:true,lift:false,escalator:false},platforms:2,level:"Elevated",tip:"🅿️ Terminal station. Good bus connections to Electronic City from outside the station."},
+  "Lalbagh":{exits:["Exit 1: Lalbagh Main Gate","Exit 2: South Gate Road"],facilities:{washroom:true,atm:false,vending:false,parking:false,lift:true,escalator:false},platforms:2,level:"Underground",tip:"Exit 1 is steps away from the Lalbagh Botanical Garden main entrance. Perfect for a garden visit!"},
+  "Yeshwanthpur":{exits:["Exit 1: Yeshwanthpur Main Road","Exit 2: BMTC Bus Stand"],facilities:{washroom:true,atm:true,vending:true,parking:true,lift:true,escalator:true},platforms:2,level:"Elevated",tip:"🅿️ Good parking. Excellent BMTC bus connectivity to most parts of Bengaluru from Exit 2."},
+  "default":{exits:["Exit 1: Main Road","Exit 2: Side Road"],facilities:{washroom:true,atm:false,vending:false,parking:false,lift:true,escalator:false},platforms:2,level:"Elevated",tip:"Follow station signage for exits. Token vending machines at concourse level."}
+};
+
+const TRAVEL_MS = 4000, HALT_MS = 1000;
+let animTO = null, routeData = null, lastUpdate = null;
+let currentStationIdx = 0;
+
+// ===== NAVIGATION =====
+function goTo(pg) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
+  document.getElementById(pg).classList.add('on');
+  window.scrollTo(0,0);
+}
+
+// ===== SIGNUP =====
+function doSignup() {
+  const name = document.getElementById('suName').value.trim();
+  const phone = document.getElementById('suPhone').value.trim();
+  if(!name){ alert('Please enter your name!'); return; }
+  if(!phone){ alert('Please enter your phone number!'); return; }
+  localStorage.setItem('tm_user', JSON.stringify({name, phone}));
+  initLanding(name);
+}
+
+function initLanding(name) {
+  goTo('pgLanding');
+  document.getElementById('uAvatar').textContent = name.charAt(0).toUpperCase();
+  document.getElementById('uName').textContent = name.split(' ')[0];
+  const h = new Date().getHours();
+  const g = h<12?'Good morning':h<17?'Good afternoon':'Good evening';
+  document.getElementById('greetTxt').textContent = `${g}, ${name.split(' ')[0]}! 👋`;
+  populateAll();
+  // Set today's date for inputs
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('bkDate').value = today;
+  document.getElementById('passDate').value = today;
+}
+
+// ===== POPULATE SELECTS =====
+function makeOpts(fromId, toId, defFrom, defTo) {
+  [fromId, toId].forEach((selId, idx) => {
+    const sel = document.getElementById(selId);
+    if(!sel) return;
+    sel.innerHTML = '';
+    const pg = document.createElement('optgroup'); pg.label = '🟣 Purple Line';
+    PURPLE_LINE.forEach(s => pg.appendChild(new Option(s,s,false,s===(idx===0?defFrom:defTo))));
+    const gg = document.createElement('optgroup'); gg.label = '🟢 Green Line';
+    GREEN_LINE.forEach(s => { if(!PURPLE_LINE.includes(s)) gg.appendChild(new Option(s,s)); });
+    sel.appendChild(pg); sel.appendChild(gg);
+  });
+}
+
+function makeSingle(selId, def) {
+  const el = document.getElementById(selId);
+  if(!el) return;
+  el.innerHTML = '';
+  const pg = document.createElement('optgroup'); pg.label = '🟣 Purple Line';
+  PURPLE_LINE.forEach(s => pg.appendChild(new Option(s,s,false,s===def)));
+  const gg = document.createElement('optgroup'); gg.label = '🟢 Green Line';
+  GREEN_LINE.forEach(s => { if(!PURPLE_LINE.includes(s)) gg.appendChild(new Option(s,s)); });
+  el.appendChild(pg); el.appendChild(gg);
+}
+
+function populateAll() {
+  makeOpts('jFrom','jTo','MG Road','Indiranagar');
+  makeOpts('fareFrom','fareTo','MG Road','Indiranagar');
+  makeOpts('bkFrom','bkTo','MG Road','Indiranagar');
+  makeSingle('tourStation','MG Road');
+  makeSingle('bpStation','MG Road');
+  loadTourism();
+  loadBlueprint();
+  initPlanDay();
+}
+
+// ===== JOURNEY (ETA + DENSITY) =====
+async function fetchAll() {
+  const from = document.getElementById('jFrom').value;
+  const to = document.getElementById('jTo').value;
+  if(from === to){ alert('Please select different stations!'); return; }
+  const btn = document.getElementById('trackBtn');
+  btn.disabled = true; btn.textContent = 'Loading...';
+  const trains = ['4201','4203','4205','4207','4209'];
+  const tid = trains[Math.floor(Math.random()*trains.length)];
+  document.getElementById('dtLabel').textContent = `Train ${tid}`;
+  document.getElementById('combinedResult').style.display = 'block';
+  document.getElementById('dResult').style.display = 'none';
+  document.getElementById('dLoader').classList.add('on');
+  const steps = ['s1','s2','s3','s4'];
+  steps.forEach(s => document.getElementById(s).className = 'lstep');
+  let si = 0;
+  const si_ = setInterval(() => {
+    if(si>0) document.getElementById(steps[si-1]).className = 'lstep done';
+    if(si<steps.length){ document.getElementById(steps[si]).className = 'lstep active'; si++; }
+    else clearInterval(si_);
+  }, 600);
+  try {
+    // Fetch ETA instantly
+    const [er, tr] = await Promise.all([
+      fetch(`${API}/eta?from_station=${encodeURIComponent(from)}&to_station=${encodeURIComponent(to)}`),
+      fetch(`${API}/trains?station=${encodeURIComponent(from)}`)
+    ]);
+    const ed = await er.json(), td = await tr.json();
+    routeData = { from, to, etaData: ed, trainId: tid };
+    lastUpdate = new Date();
+    setUtext();
+    currentStationIdx = 0;
+    renderMap(from, to, ed);
+    renderTrains(td.upcoming_trains);
+    btn.disabled = false; btn.textContent = '🚇 Track Train + Check Density';
+    // Fetch density in background
+    fetch(`${API}/density/${tid}`)
+      .then(r => r.json())
+      .then(dd => {
+        clearInterval(si_);
+        steps.forEach(s => document.getElementById(s).className = 'lstep done');
+        document.getElementById('dLoader').classList.remove('on');
+        renderCoaches(dd.coaches);
+      })
+      .catch(() => {
+        clearInterval(si_);
+        document.getElementById('dLoader').classList.remove('on');
+        document.getElementById('dResult').innerHTML = '<div style="text-align:center;color:var(--muted);padding:20px;font-size:12px;">Density unavailable</div>';
+        document.getElementById('dResult').style.display = 'block';
+      });
+  } catch(e) {
+    clearInterval(si_);
+    document.getElementById('dLoader').classList.remove('on');
+    btn.disabled = false; btn.textContent = '🚇 Track Train + Check Density';
+    alert('Cannot connect to backend. Make sure uvicorn is running!');
+  }
+}
+
+async function refreshAll() {
+  if(!routeData) return;
+  const btn = document.getElementById('rbtn');
+  btn.classList.add('spinning'); btn.disabled = true;
+  try {
+    const {from, to, trainId} = routeData;
+    const [er, tr, dr] = await Promise.all([
+      fetch(`${API}/eta?from_station=${encodeURIComponent(from)}&to_station=${encodeURIComponent(to)}`),
+      fetch(`${API}/trains?station=${encodeURIComponent(from)}`),
+      fetch(`${API}/density/${trainId}`)
+    ]);
+    const ed = await er.json(), td = await tr.json(), dd = await dr.json();
+    routeData.etaData = ed; lastUpdate = new Date(); setUtext();
+    renderMap(from, to, ed); renderTrains(td.upcoming_trains); renderCoaches(dd.coaches);
+  } catch(e){ alert('Refresh failed!'); }
+  finally { setTimeout(()=>{ btn.classList.remove('spinning'); btn.disabled=false; }, 500); }
+}
+
+function setUtext() {
+  if(!lastUpdate) return;
+  const d = lastUpdate;
+  const time = d.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  const date = d.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+  document.getElementById('utext').textContent = `Last updated: ${date}, ${time}`;
+}
+
+// ===== COACHES — with varying density per station =====
+function renderCoaches(coaches, showUpdate = false) {
+  const grid = document.getElementById('coachGrid');
+  let total=0, best={pct:999,id:''}, crowd={pct:0,id:''};
+  const entries = Object.entries(coaches);
+  entries.forEach(([id,c]) => {
+    total += c.density_pct;
+    if(c.density_pct < best.pct){ best.pct=c.density_pct; best.id=id; }
+    if(c.density_pct > crowd.pct){ crowd.pct=c.density_pct; crowd.id=id; }
+  });
+
+  // Smooth update — update existing cards if they exist, else create
+  const existing = grid.querySelectorAll('.cc');
+  if(existing.length === entries.length) {
+    entries.forEach(([id,c], i) => {
+      const card = existing[i];
+      const isLadies = c.ladies_only;
+      const cls = isLadies ? 'ladies' : c.level;
+      card.className = `cc ${cls}`;
+      card.querySelector('.cpct').textContent = c.density_pct + '%';
+      card.querySelector('.cbadge').textContent = isLadies ? 'LADIES ONLY' : c.level.toUpperCase();
+      const bar = card.querySelector('.cbarf');
+      if(bar) bar.style.width = c.density_pct + '%';
+    });
+  } else {
+    grid.innerHTML = entries.map(([id,c]) => {
+      const isLadies = c.ladies_only;
+      const cls = isLadies ? 'ladies' : c.level;
+      const badge = isLadies ? 'LADIES ONLY' : c.level.toUpperCase();
+      return `<div class="cc ${cls}">
+        <div class="cid">${id}</div>
+        <div class="cpct">${c.density_pct}%</div>
+        <div class="cbadge">${badge}</div>
+        <div class="cbar"><div class="cbarf" style="width:${c.density_pct}%"></div></div>
+      </div>`;
+    }).join('');
+  }
+
+  document.getElementById('avgPct').textContent = Math.round(total/entries.length)+'%';
+  document.getElementById('bestC').textContent = best.id;
+  document.getElementById('crowdC').textContent = crowd.id;
+  document.getElementById('dResult').style.display = 'block';
+
+  if(showUpdate) {
+    const badge = document.getElementById('densityUpdateBadge');
+    badge.style.display = 'block';
+    setTimeout(() => { badge.style.display = 'none'; }, 2000);
+  }
+}
+
+// ===== RENDER TRAINS =====
+function renderTrains(trains) {
+  const colors = ['var(--green)','var(--orange)','var(--muted)'];
+  document.getElementById('trainList').innerHTML = trains.map((t,i) => {
+    const cls = t.eta_minutes<=3?'enow':t.eta_minutes<=10?'esoon':'elater';
+    return `<div class="tmi">
+      <div style="display:flex;align-items:center;">
+        <div class="tdot" style="background:${colors[i]}"></div>
+        <div><div class="tname">Train ${t.train_id}</div><div class="tsub">${t.status}</div></div>
+      </div>
+      <div class="epill ${cls}">~${t.eta_minutes}m</div>
+    </div>`;
+  }).join('');
+}
+
+// ===== RENDER MAP — density updates at each station =====
+function getLine(station) {
+  if(PURPLE_LINE.includes(station)) return PURPLE_LINE;
+  if(GREEN_LINE.includes(station)) return GREEN_LINE;
+  return PURPLE_LINE;
+}
+
+function renderMap(from, to, eta) {
+  const line = getLine(from);
+  const fromIdx = line.indexOf(from), toIdx = line.indexOf(to);
+  if(fromIdx === -1) return;
+  const goingFwd = toIdx > fromIdx;
+  let route;
+  if(goingFwd){
+    const start = Math.max(0, fromIdx-3);
+    route = line.slice(start, fromIdx+1);
+  } else {
+    const end = Math.min(line.length-1, fromIdx+3);
+    route = line.slice(fromIdx, end+1).reverse();
+  }
+  const total = route.length, userStop = total-1;
+
+  document.getElementById('sdots').innerHTML = route.map((s,i) =>
+    `<div class="sd ${i===userStop?'myst':''}" title="${s}" id="d${i}"></div>`
+  ).join('');
+  document.getElementById('snames').innerHTML = route.map((s,i) =>
+    `<div class="sn ${i===userStop?'myst':''}" id="n${i}" title="${s}">${s.split(' ')[0]}</div>`
+  ).join('');
+
+  if(animTO) clearTimeout(animTO);
+  let cur = 0;
+  currentStationIdx = 0;
+
+  function px(idx) {
+    const rail = document.querySelector('.trl');
+    if(!rail) return 16;
+    return 16 + (total>1 ? idx/(total-1) : 0) * rail.offsetWidth;
+  }
+
+  function upd(idx) {
+    const marker = document.getElementById('tmrk');
+    marker.style.left = px(idx) + 'px';
+    marker.style.transition = idx===0?'none':`left ${TRAVEL_MS}ms linear`;
+    const bar = document.getElementById('trp');
+    bar.style.width = (total>1?(idx/(total-1))*100:0) + '%';
+    bar.style.transition = idx===0?'none':`width ${TRAVEL_MS}ms linear`;
+
+    route.forEach((_,i) => {
+      const dot = document.getElementById('d'+i), nm = document.getElementById('n'+i);
+      if(!dot) return;
+      dot.className='sd'; nm.className='sn';
+      if(i<idx){ dot.classList.add('passed'); }
+      else if(i===idx){ dot.classList.add('current'); nm.classList.add('active'); }
+      if(i===userStop){ dot.classList.add('myst'); nm.classList.add('myst'); }
+    });
+
+    const left = userStop - idx;
+    const mins = Math.round(left * 2.5);
+    if(left === 0){
+      document.getElementById('curSt').innerHTML =
+        `${route[idx]}<span class="abadge">🟢 Train arrived at your station!</span>`;
+      document.getElementById('etaN').textContent = '0';
+    } else {
+      document.getElementById('curSt').innerHTML =
+        `${route[idx]} <span class="hbadge">HALTING</span>`;
+      document.getElementById('etaN').textContent = mins;
+    }
+  }
+
+  function step(idx) {
+    upd(idx);
+    currentStationIdx = idx;
+
+    // KEY FIX: fetch new density at each station stop (passengers board/alight)
+    if(idx > 0 && routeData && routeData.trainId) {
+      fetch(`${API}/density_by_station/${routeData.trainId}/${idx}`)
+        .then(r => r.json())
+        .then(dd => {
+          if(dd.coaches) renderCoaches(dd.coaches, true);
+        })
+        .catch(() => {
+          // Fallback: locally vary density
+          localVaryDensity(idx);
+        });
+    }
+
+    if(idx >= userStop) return;
+    animTO = setTimeout(() => step(idx+1), TRAVEL_MS + HALT_MS);
+  }
+
+  // Local fallback density variation
+  function localVaryDensity(stationIdx) {
+    const coaches = {};
+    const levels = ['low','low','medium','medium','high','high'];
+    // Shift pattern based on station
+    const shifted = [...levels.slice(stationIdx%6), ...levels.slice(0,stationIdx%6)];
+    shifted.forEach((level, i) => {
+      const cid = i+1;
+      let pct;
+      if(level==='low') pct = Math.floor(Math.random()*30)+5;
+      else if(level==='medium') pct = Math.floor(Math.random()*25)+42;
+      else pct = Math.floor(Math.random()*25)+73;
+      coaches[`C${cid}`] = {
+        coach:`C${cid}`, density_pct:pct,
+        level, ladies_only: cid===1
+      };
+    });
+    renderCoaches(coaches, true);
+  }
+
+  upd(0);
+  animTO = setTimeout(() => step(1), HALT_MS);
+
+  const dir = goingFwd ? '→ Eastbound' : '← Westbound';
+  document.getElementById('ibox').innerHTML =
+    `🚇 Train is <span style="color:var(--orange);font-weight:700;">${userStop} station${userStop!==1?'s':''} away</span><br>`+
+    `📍 Your station: <span style="color:var(--orange)">${from}</span> · 🏁 To: <span style="color:var(--green)">${to}</span><br>`+
+    `↔ ~${eta.eta_minutes} mins · ${eta.stops} stops · ${dir} · Fare: ₹${eta.fare||'--'}<br>`+
+    `<span style="color:var(--green-dim,#00D68F44);font-size:10px;">🔄 Coach density updates at each station stop</span>`;
+}
+
+// ===== NEAREST STATION =====
+async function detectLocation() {
+  if(!navigator.geolocation){ alert('Geolocation not supported!'); return; }
+  document.getElementById('nearLoading').style.display = 'block';
+  document.getElementById('nearResults').innerHTML = '';
+  navigator.geolocation.getCurrentPosition(
+    async pos => {
+      try {
+        const {latitude, longitude} = pos.coords;
+        const res = await fetch(`${API}/nearest_station?lat=${latitude}&lng=${longitude}`);
+        const data = await res.json();
+        document.getElementById('nearLoading').style.display = 'none';
+        renderNearestStations(data.top3, latitude, longitude);
+      } catch(e) {
+        document.getElementById('nearLoading').style.display = 'none';
+        alert('Could not fetch station data. Make sure backend is running!');
+      }
+    },
+    err => {
+      document.getElementById('nearLoading').style.display = 'none';
+      if(err.code === 1){
+        alert('Location permission denied.\n\nTo fix:\n1. Click the lock icon in the address bar\n2. Allow Location access\n3. Refresh the page and try again');
+      } else {
+        alert('Could not detect location. Try again in a moment.');
+      }
+    },
+    { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+  );
+}
+
+function renderNearestStations(stations, userLat, userLng) {
+  const container = document.getElementById('nearResults');
+  container.innerHTML = `
+    <div class="card" style="background:var(--green-dim);border-color:var(--green);margin-bottom:12px;">
+      <div style="font-size:12px;color:var(--green);font-family:var(--mono);">
+        📍 Your location: ${userLat.toFixed(4)}, ${userLng.toFixed(4)}<br>
+        <span style="color:var(--muted);">Showing 3 nearest Namma Metro stations</span>
+      </div>
+    </div>
+    ${stations.map((st, i) => {
+      const lineEmoji = st.line==='purple'?'🟣':st.line==='green'?'🟢':'🟣🟢';
+      const lineText = st.line==='purple'?'Purple Line':st.line==='green'?'Green Line':'Purple & Green Line';
+      return `<div class="near-station-card ${i===0?'top':''}">
+        <div class="near-rank">${i===0?'🏆 NEAREST':'#'+( i+1)} STATION</div>
+        <div class="near-name">${st.station}</div>
+        <div class="near-dist">${st.distance_km} km from you</div>
+        <div class="near-meta">
+          <span class="near-tag ${i===0?'green':'gray'}">${st.travel_mode}</span>
+          <span class="near-tag gray">${lineEmoji} ${lineText}</span>
+          <span class="near-tag ${st.has_parking?'green':'orange'}">${st.has_parking?'🅿️ Parking':'🚫 No Parking'}</span>
+        </div>
+        ${st.has_parking ? `
+          <div class="parking-tip" style="margin-top:10px;">
+            🅿️ <strong>Parking Available!</strong> You can drive to ${st.station}.<br>
+            2-wheelers: ~₹20/hr &nbsp;|&nbsp; 4-wheelers: ~₹40/hr
+          </div>
+        ` : i===0 ? `
+          <div class="parking-tip parking-no" style="margin-top:10px;">
+            🚫 No parking here. Use ${st.travel_mode.split(' ')[0]} to reach this station.
+          </div>
+        ` : ''}
+      </div>`;
+    }).join('')}
+  `;
+}
+
+// ===== FARE CALCULATOR =====
+async function calcFare() {
+  const from = document.getElementById('fareFrom').value;
+  const to = document.getElementById('fareTo').value;
+  if(from===to){ alert('Please select different stations!'); return; }
+  try {
+    const res = await fetch(`${API}/fare?from_station=${encodeURIComponent(from)}&to_station=${encodeURIComponent(to)}`);
+    const data = await res.json();
+    document.getElementById('fareSingle').textContent = `₹${data.fare_single}`;
+    document.getElementById('fareReturn').textContent = `₹${data.fare_return}`;
+    document.getElementById('fdFrom').textContent = data.from;
+    document.getElementById('fdTo').textContent = data.to;
+    document.getElementById('fdStops').textContent = `${data.stops} stops`;
+    document.getElementById('fdDist').textContent = `${data.distance_km} km`;
+    document.getElementById('fdTime').textContent = `~${Math.round(data.stops*2.5)} minutes`;
+    document.getElementById('fareResult').classList.add('on');
+  } catch(e){ alert('Cannot connect to backend!'); }
+}
+
+// ===== TOURISM =====
+function loadTourism() {
+  const station = document.getElementById('tourStation').value;
+  const spots = TOURIST_SPOTS[station] || TOURIST_SPOTS['default'];
+  document.getElementById('tourResults').innerHTML =
+    `<div class="card" style="background:var(--green-dim);border-color:var(--green);margin-bottom:12px;">
+      <div style="font-size:13px;color:var(--green);">🗺️ Exploring near <strong>${station}</strong></div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px;">All distances from the station exit · Best visited from this station</div>
+    </div>
+    ${spots.map((s,i) => `
+      <div class="spot-card" style="animation-delay:${i*0.1}s;">
+        ${s.img ?
+          `<img class="spot-img" src="${s.img}" alt="${s.name}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+           <div class="spot-img-placeholder" style="display:none;">🏛️</div>` :
+          `<div class="spot-img-placeholder">🏛️</div>`
+        }
+        <div class="spot-body">
+          <div class="spot-name">${s.name}</div>
+          <div class="spot-meta">
+            <span class="spot-dist">📍 ${s.dist}</span>
+            <span class="spot-mode">${s.mode}</span>
+          </div>
+          <div class="spot-desc">${s.desc}</div>
+        </div>
+      </div>`).join('')}`;
+}
+
+// ===== BLUEPRINT =====
+function loadBlueprint() {
+  const station = document.getElementById('bpStation').value;
+  const info = STATION_INFO[station] || STATION_INFO['default'];
+  const f = info.facilities;
+  document.getElementById('bpResult').innerHTML = `
+    <div class="card">
+      <div style="font-size:18px;font-weight:700;margin-bottom:4px;">${station}</div>
+      <div style="font-size:12px;color:var(--muted);font-family:var(--mono);margin-bottom:14px;">
+        📍 ${info.level} Station &nbsp;|&nbsp; ${info.platforms} Platform${info.platforms>1?'s':''}
+      </div>
+      ${info.interchange ? `<div style="margin-bottom:12px;font-size:12px;background:#A855F722;border:1px solid var(--purple);border-radius:8px;padding:8px 12px;color:var(--purple);">🔄 ${info.interchange}</div>` : ''}
+      <div class="clabel">Facilities</div>
+      <div class="bp-grid">
+        <div class="bp-item ${f.washroom?'avail':'unavail'}"><div class="bp-icon">🚻</div><div class="bp-lbl">${f.washroom?'Washroom ✓':'No Washroom'}</div></div>
+        <div class="bp-item ${f.atm?'avail':'unavail'}"><div class="bp-icon">🏧</div><div class="bp-lbl">${f.atm?'ATM ✓':'No ATM'}</div></div>
+        <div class="bp-item ${f.vending?'avail':'unavail'}"><div class="bp-icon">🥤</div><div class="bp-lbl">${f.vending?'Vending ✓':'No Vending'}</div></div>
+        <div class="bp-item ${f.parking?'avail':'unavail'}"><div class="bp-icon">🅿️</div><div class="bp-lbl">${f.parking?'Parking ✓':'No Parking'}</div></div>
+        <div class="bp-item ${f.lift?'avail':'unavail'}"><div class="bp-icon">🛗</div><div class="bp-lbl">${f.lift?'Lift ✓':'No Lift'}</div></div>
+        <div class="bp-item ${f.escalator?'avail':'unavail'}"><div class="bp-icon">🪜</div><div class="bp-lbl">${f.escalator?'Escalator ✓':'No Escalator'}</div></div>
+      </div>
+      <div class="clabel">Station Exits</div>
+      ${info.exits.map(e=>`<div class="exit-item">🚪 ${e}</div>`).join('')}
+      ${f.parking ? `<div class="parking-tip" style="margin-bottom:12px;">🅿️ <strong>Parking Available</strong><br>2-wheelers: ~₹20/hr &nbsp;|&nbsp; 4-wheelers: ~₹40/hr<br>Monthly passes available at station office.</div>` : ''}
+      <div class="bp-tip">💡 ${info.tip}</div>
+    </div>`;
+}
+
+// ===== BOOK TICKET =====
+let selectedTicketType = 'single';
+let paxCount = 1;
+
+function selectTicketType(type) {
+  selectedTicketType = type;
+  document.getElementById('tt-single').classList.toggle('sel', type==='single');
+  document.getElementById('tt-return').classList.toggle('sel', type==='return');
+  document.getElementById('bookingSummary').style.display = 'none';
+  document.getElementById('confirmBkBtn').style.display = 'none';
+}
+
+function changePax(delta) {
+  paxCount = Math.max(1, Math.min(6, paxCount + delta));
+  document.getElementById('paxCount').textContent = paxCount;
+  document.getElementById('bookingSummary').style.display = 'none';
+  document.getElementById('confirmBkBtn').style.display = 'none';
+}
+
+async function previewBooking() {
+  const from = document.getElementById('bkFrom').value;
+  const to = document.getElementById('bkTo').value;
+  const date = document.getElementById('bkDate').value;
+  if(from===to){ alert('Please select different stations!'); return; }
+  if(!date){ alert('Please select travel date!'); return; }
+  try {
+    const res = await fetch(`${API}/fare?from_station=${encodeURIComponent(from)}&to_station=${encodeURIComponent(to)}`);
+    const data = await res.json();
+    const baseFare = selectedTicketType==='return' ? data.fare_return : data.fare_single;
+    const totalFare = baseFare * paxCount;
+    document.getElementById('bkRoute').textContent = `${from} → ${to}`;
+    document.getElementById('bkType').textContent = selectedTicketType==='return'?'Return Journey':'Single Journey';
+    document.getElementById('bkDateDisp').textContent = new Date(date).toLocaleDateString('en-IN',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+    document.getElementById('bkPax').textContent = `${paxCount} passenger${paxCount>1?'s':''}`;
+    document.getElementById('bkFare').textContent = `₹${totalFare} (₹${baseFare} × ${paxCount})`;
+    document.getElementById('payAmt').textContent = totalFare;
+    document.getElementById('bookingSummary').style.display = 'block';
+    document.getElementById('confirmBkBtn').style.display = 'block';
+  } catch(e){ alert('Cannot connect to backend!'); }
+}
+
+function confirmBooking() {
+  const from = document.getElementById('bkFrom').value;
+  const to = document.getElementById('bkTo').value;
+  const date = document.getElementById('bkDate').value;
+  const bkId = 'TM-' + Math.random().toString(36).substr(2,6).toUpperCase();
+  document.getElementById('bookingId').textContent = bkId;
+  document.getElementById('bkConfirmText').textContent =
+    `${from} → ${to} · ${selectedTicketType==='return'?'Return':'Single'} · ${paxCount} pax · ${new Date(date).toLocaleDateString('en-IN',{day:'2-digit',month:'short'})}`;
+  document.getElementById('qrBox').textContent = `TM\n${bkId}\n▪▫▪\n▫▪▫\n▪▫▪`;
+  document.getElementById('bookingForm').style.display = 'none';
+  document.getElementById('bookingConfirm').classList.add('on');
+}
+
+function resetBooking() {
+  document.getElementById('bookingForm').style.display = 'block';
+  document.getElementById('bookingConfirm').classList.remove('on');
+  document.getElementById('bookingSummary').style.display = 'none';
+  document.getElementById('confirmBkBtn').style.display = 'none';
+}
+
+
+
+
+
+function addSegment() {
+  const idx = segments.length;
+  segments.push({from:'MG Road',to:'Indiranagar',time:'09:00'});
+  const container = document.getElementById('segmentsContainer');
+  const div = document.createElement('div');
+  div.className = 'journey-segment';
+  div.id = `seg${idx}`;
+  div.innerHTML = `
+    <div class="seg-num">Leg ${idx+1}</div>
+    ${idx>0?`<div class="seg-remove" onclick="removeSegment(${idx})">✕ Remove</div>`:''}
+    <div class="row2" style="margin-top:10px;">
+      <div>
+        <div class="lbl">FROM</div>
+        <select onchange="segments[${idx}].from=this.value" style="margin-bottom:0;"></select>
+      </div>
+      <div>
+        <div class="lbl">TO</div>
+        <select onchange="segments[${idx}].to=this.value" style="margin-bottom:0;"></select>
+      </div>
+    </div>
+    <div style="margin-top:8px;">
+      <div class="lbl">DEPARTURE TIME</div>
+      <input type="time" value="0${9+idx}:00" onchange="segments[${idx}].time=this.value" style="margin-bottom:0;"/>
+    </div>`;
+  container.appendChild(div);
+
+  // Populate selects
+  const sels = div.querySelectorAll('select');
+  PURPLE_LINE.forEach(s => {
+    sels[0].add(new Option(s,s,false,s==='MG Road'));
+    sels[1].add(new Option(s,s,false,s==='Indiranagar'));
+  });
+  GREEN_LINE.forEach(s => {
+    if(!PURPLE_LINE.includes(s)){
+      sels[0].add(new Option(s,s));
+      sels[1].add(new Option(s,s));
+    }
+  });
+
+  if(segments.length > 0) document.getElementById('planBtn').style.display = 'block';
+}
+// ===== DAILY PASS =====
+let selectedPass = {id:'1day', price:50, name:'1 Day Pass'};
+
+function selectPass(id, price) {
+  selectedPass = {id, price, name: id==='1day'?'1 Day Pass':id==='3day'?'3 Day Pass':'7 Day Pass'};
+  ['1day','3day','7day'].forEach(p =>
+    document.getElementById(`pass-${p}`).classList.toggle('sel', p===id));
+}
+
+function purchasePass() {
+  const date = document.getElementById('passDate').value;
+  if(!date){ alert('Please select a start date!'); return; }
+  const start = new Date(date);
+  const days = selectedPass.id==='1day'?1:selectedPass.id==='3day'?3:7;
+  const end = new Date(start);
+  end.setDate(end.getDate() + days - 1);
+  const fmt = d => d.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+  document.getElementById('passVisualName').textContent = selectedPass.name;
+  document.getElementById('passVisualPrice').textContent = `₹${selectedPass.price}`;
+  document.getElementById('passValidFrom').textContent = fmt(start);
+  document.getElementById('passValidTo').textContent = fmt(end);
+  const saved = localStorage.getItem('tm_user');
+  const uname = saved ? JSON.parse(saved).name.toUpperCase() : 'PASSENGER';
+  document.getElementById('passHolderName').textContent = `HOLDER: ${uname}`;
+  document.getElementById('passId').textContent = 'TMP-' + Math.random().toString(36).substr(2,6).toUpperCase();
+  document.getElementById('passForm').style.display = 'none';
+  document.getElementById('passConfirm').classList.add('on');
+}
+
+function resetPass() {
+  document.getElementById('passForm').style.display = 'block';
+  document.getElementById('passConfirm').classList.remove('on');
+}
+
+// ===== CARD RECHARGE =====
+let selectedAmount = 0;
+let cardCurrentBalance = 0;
+
+function formatCardNum(input) {
+  let v = input.value.replace(/\D/g,'').substr(0,16);
+  v = v.replace(/(.{4})/g,'$1 ').trim();
+  input.value = v;
+  if(v.replace(/\s/g,'').length >= 16) loadCardBalance();
+}
+
+function loadCardBalance() {
+  const num = document.getElementById('cardInput').value.replace(/\s/g,'');
+  if(num.length < 16) return;
+  // Simulate a balance based on card number
+  cardCurrentBalance = (parseInt(num.substr(-4)) % 500) + 50;
+  document.getElementById('cardNum').textContent = document.getElementById('cardInput').value;
+  document.getElementById('cardBalance').textContent = `₹${cardCurrentBalance}`;
+}
+
+function selectAmt(amt) {
+  document.querySelectorAll('.amt-btn').forEach(b => b.classList.remove('sel'));
+  event.target.classList.add('sel');
+  if(amt === 0) {
+    document.getElementById('customAmtDiv').style.display = 'block';
+    selectedAmount = 0;
+  } else {
+    document.getElementById('customAmtDiv').style.display = 'none';
+    selectedAmount = amt;
+    document.getElementById('selectedAmt').textContent = `₹${amt}`;
+  }
+}
+
+function rechargeCard() {
+  const cardNum = document.getElementById('cardInput').value.replace(/\s/g,'');
+  if(cardNum.length < 16){ alert('Please enter a valid 16-digit card number!'); return; }
+  if(selectedAmount === 0){
+    const custom = parseInt(document.getElementById('customAmt')?.value);
+    if(!custom || custom < 50 || custom > 2000){ alert('Enter amount between ₹50 and ₹2000'); return; }
+    selectedAmount = custom;
+  }
+  const newBal = cardCurrentBalance + selectedAmount;
+  document.getElementById('rechargeCardNum').textContent = document.getElementById('cardInput').value;
+  document.getElementById('newBalance').textContent = `₹${newBal}`;
+  document.getElementById('rechargeText').textContent =
+    `₹${selectedAmount} added to your Namma Metro Smart Card. New balance: ₹${newBal}`;
+  document.getElementById('rechargeForm').style.display = 'none';
+  document.getElementById('rechargeConfirm').classList.add('on');
+}
+
+function resetRecharge() {
+  document.getElementById('rechargeForm').style.display = 'block';
+  document.getElementById('rechargeConfirm').classList.remove('on');
+  selectedAmount = 0;
+  document.querySelectorAll('.amt-btn').forEach(b => b.classList.remove('sel'));
+}
+
+// ===== INIT =====
+const saved = localStorage.getItem('tm_user');
+if(saved){ const u = JSON.parse(saved); initLanding(u.name); }
+</script>
+</body>
+</html>
