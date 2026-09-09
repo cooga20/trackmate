@@ -749,53 +749,335 @@ const ALL_STATIONS = [...new Set([...PURPLE_LINE, ...GREEN_LINE])];
 // Tourist spots with images (using Unsplash for real photos)
 const TOURIST_SPOTS = {
   "MG Road":[
-    {name:"Cubbon Park",dist:"1.2 km",mode:"🚶 Walk (~15 min)",img:"https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Cubbon_park_from_air.jpg/640px-Cubbon_park_from_air.jpg",desc:"A sprawling 300-acre botanical garden established in 1870. Home to over 6000 trees, a glass house, and beautiful walking paths. Perfect for a peaceful morning stroll amidst the concrete jungle of Bengaluru. Entry is free."},
-    {name:"Commercial Street",dist:"0.8 km",mode:"🚶 Walk (~10 min)",img:"https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Commercial_Street%2C_Bangalore.jpg/640px-Commercial_Street%2C_Bangalore.jpg",desc:"Bengaluru's most famous shopping street, lined with over 200 shops selling clothes, jewellery, accessories and street food. Best visited in the evening. Bargaining is expected and encouraged at most shops."},
-    {name:"St. Mark's Cathedral",dist:"0.5 km",mode:"🚶 Walk (~6 min)",img:"https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/St._Mark%27s_Cathedral%2C_Bangalore.jpg/640px-St._Mark%27s_Cathedral%2C_Bangalore.jpg",desc:"A stunning 19th century cathedral built in 1812, one of the oldest churches in Bengaluru. Features beautiful stained glass windows and peaceful gardens. Open daily for visitors. Photography allowed outside."}
+    {
+      name:"Cubbon Park",
+      dist:"1.2 km",
+      mode:"🚶 Walk (~15 min)",
+      img:"https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Cubbon_Park%2C_Bangalore.jpg/640px-Cubbon_Park%2C_Bangalore.jpg",
+      desc:"A sprawling 300-acre botanical garden established in 1870. Home to over 6000 trees, a Victorian glass house, and beautiful walking paths. The park houses the Karnataka High Court, State Museum and Venkatappa Art Gallery. Entry is free and the park is open all days. Best visited early morning for a peaceful experience."
+    },
+    {
+      name:"Commercial Street",
+      dist:"0.8 km",
+      mode:"🚶 Walk (~10 min)",
+      img:"https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Commercial_Street_Bangalore.jpg/640px-Commercial_Street_Bangalore.jpg",
+      desc:"Bengaluru's most iconic shopping street stretching over 500 metres, lined with 200+ shops selling clothes, jewellery, accessories, electronics and street food. Best visited on weekday evenings. Bargaining is expected and welcomed at most shops. Famous for its chaotic yet charming atmosphere."
+    },
+    {
+      name:"Brigade Road",
+      dist:"0.3 km",
+      mode:"🚶 Walk (~4 min)",
+      img:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Brigade_Road_Bangalore.jpg/640px-Brigade_Road_Bangalore.jpg",
+      desc:"One of Bengaluru's most popular commercial streets lined with branded stores, cafes, restaurants and entertainment venues. A great place for shopping and people-watching. The street is at its liveliest during weekends and evenings."
+    }
   ],
   "Cubbon Park":[
-    {name:"Cubbon Park",dist:"0.1 km",mode:"🚶 Walk (~2 min)",img:"https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Cubbon_park_from_air.jpg/640px-Cubbon_park_from_air.jpg",desc:"300-acre botanical garden, one of Bengaluru's most loved green spaces. Home to rare trees, a glass house, the Karnataka High Court and several museums. Ideal for morning jogs and picnics. Free entry, open all days."},
-    {name:"Vidhana Soudha",dist:"0.8 km",mode:"🚶 Walk (~10 min)",img:"https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Vidhana_Soudha%2C_Bangalore.jpg/640px-Vidhana_Soudha%2C_Bangalore.jpg",desc:"The iconic seat of Karnataka's state legislature, built in 1956 in Dravidian-Gothic style. Lit spectacularly with thousands of lights on Sunday evenings and national holidays. Photography from the outside is a must."},
-    {name:"Karnataka State Museum",dist:"0.4 km",mode:"🚶 Walk (~5 min)",img:"https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Government_Museum_Bangalore.jpg/640px-Government_Museum_Bangalore.jpg",desc:"One of the oldest museums in India, housing rich collections of art, sculpture, natural history and archaeological finds. Includes separate sections for geology, zoology and coins. Entry: ₹20 for adults."}
+    {
+      name:"Cubbon Park",
+      dist:"0.1 km",
+      mode:"🚶 Walk (~2 min)",
+      img:"https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Cubbon_Park%2C_Bangalore.jpg/640px-Cubbon_Park%2C_Bangalore.jpg",
+      desc:"300-acre botanical garden and one of Bengaluru's most beloved green spaces. Features rare trees, a glass house, Karnataka High Court building, museums and open lawns. Ideal for morning jogs, picnics and birdwatching. Free entry, open all days 6 AM to 6 PM."
+    },
+    {
+      name:"Vidhana Soudha",
+      dist:"0.8 km",
+      mode:"🚶 Walk (~10 min)",
+      img:"https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Vidhana_Soudha%2C_Bangalore.jpg/640px-Vidhana_Soudha%2C_Bangalore.jpg",
+      desc:"The iconic seat of Karnataka's state legislature built in 1956 in a striking neo-Dravidian style. Illuminated spectacularly with thousands of lights every Sunday evening and national holiday. Photography from outside is a must-do for every visitor to Bengaluru."
+    },
+    {
+      name:"Karnataka State Museum",
+      dist:"0.4 km",
+      mode:"🚶 Walk (~5 min)",
+      img:"https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Government_Museum_Bangalore.jpg/640px-Government_Museum_Bangalore.jpg",
+      desc:"One of the oldest museums in India established in 1865, housing rich collections of art, sculpture, archaeology and natural history. Includes separate sections for geology, zoology, numismatics and folk art. Entry fee: ₹20 for adults, ₹10 for children. Closed on Mondays."
+    }
   ],
   "Majestic (KSR)":[
-    {name:"Tipu Sultan's Summer Palace",dist:"2.5 km",mode:"🛺 Auto (~₹40, 10 min)",img:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Tipu_Sultan%27s_Summer_Palace_Bangalore.jpg/640px-Tipu_Sultan%27s_Summer_Palace_Bangalore.jpg",desc:"An exquisite 18th century palace of Tipu Sultan built entirely of teak wood. Features stunning Indo-Islamic architecture with ornate pillars and beautiful ceilings painted with floral motifs. Entry: ₹15 for Indians. Open all days except national holidays."},
-    {name:"KR Market (City Market)",dist:"1.5 km",mode:"🛺 Auto (~₹30, 8 min)",img:"https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/KR_Market_Bangalore.jpg/640px-KR_Market_Bangalore.jpg",desc:"Asia's largest wholesale flower market and one of Bengaluru's most colourful experiences. Best visited at dawn when fresh flowers arrive. Also sells fruits, vegetables and spices. A photographer's paradise with vibrant colours."},
-    {name:"Bengaluru City Railway Station",dist:"0.2 km",mode:"🚶 Walk (~3 min)",img:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Krantivira_Sangolli_Rayanna_Station%2C_Bangalore.jpg/640px-Krantivira_Sangolli_Rayanna_Station%2C_Bangalore.jpg",desc:"A grand heritage railway station serving millions daily. The façade features beautiful colonial architecture. Worth a quick stop to admire the architecture even if you are not catching a train."}
+    {
+      name:"Tipu Sultan's Summer Palace",
+      dist:"2.5 km",
+      mode:"🛺 Auto (~₹40, 10 min)",
+      img:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Tipu_Sultan%27s_Summer_Palace_Bangalore.jpg/640px-Tipu_Sultan%27s_Summer_Palace_Bangalore.jpg",
+      desc:"An exquisite 18th century wooden palace of Tipu Sultan built entirely of teak. Features stunning Indo-Islamic architecture with ornate pillars, arched verandas and ceilings painted with floral and battle motifs. Entry: ₹15 for Indians, ₹200 for foreigners. Open all days 8 AM to 5:30 PM except national holidays."
+    },
+    {
+      name:"KR Market (City Market)",
+      dist:"1.5 km",
+      mode:"🛺 Auto (~₹30, 8 min)",
+      img:"https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/KR_Market_Bangalore.jpg/640px-KR_Market_Bangalore.jpg",
+      desc:"One of Asia's largest wholesale flower markets and Bengaluru's most colourful cultural experience. Best visited at dawn (4–7 AM) when fresh flowers arrive from across Karnataka. Also sells fruits, vegetables, spices and earthen pots. A photographer's paradise of vibrant colours and bustling energy."
+    },
+    {
+      name:"Bengaluru City Railway Station",
+      dist:"0.2 km",
+      mode:"🚶 Walk (~3 min)",
+      img:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Krantivira_Sangolli_Rayanna_Station%2C_Bangalore.jpg/640px-Krantivira_Sangolli_Rayanna_Station%2C_Bangalore.jpg",
+      desc:"A grand heritage railway station serving over 200 trains daily and one of the busiest in South India. The station façade features beautiful colonial architecture. Worth a quick visit to admire the heritage building even if you are not catching a train."
+    }
   ],
   "Lalbagh":[
-    {name:"Lalbagh Botanical Garden",dist:"0.3 km",mode:"🚶 Walk (~4 min)",img:"https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Lalbagh_Glass_House_2015.jpg/640px-Lalbagh_Glass_House_2015.jpg",desc:"A 240-acre botanical garden established by Hyder Ali in 1760 and expanded by Tipu Sultan. Features a Victorian glass house modelled on London's Crystal Palace, rare botanical specimens, a 3000 million year old rock formation and beautiful flower shows twice a year. Entry: ₹20."},
-    {name:"Lalbagh Lake",dist:"0.5 km",mode:"🚶 Walk (~6 min)",img:"https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Lalbagh_Lake_Bangalore.jpg/640px-Lalbagh_Lake_Bangalore.jpg",desc:"A serene lake inside Lalbagh gardens, home to numerous migratory birds. Perfect for birdwatching and peaceful walks along the bund. The lake is most beautiful during sunrise and sunset hours."},
-    {name:"Kempe Gowda Tower",dist:"0.8 km",mode:"🚶 Walk (~10 min)",img:"https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Kempe_Gowda_Tower_Lalbagh.jpg/640px-Kempe_Gowda_Tower_Lalbagh.jpg",desc:"A historic watchtower built by Kempe Gowda I in the 16th century, marking the original boundary of Bengaluru. Climb up for panoramic views of the city and Lalbagh gardens. Free entry."}
+    {
+      name:"Lalbagh Botanical Garden",
+      dist:"0.3 km",
+      mode:"🚶 Walk (~4 min)",
+      img:"https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Lalbagh_Glass_House_2015.jpg/640px-Lalbagh_Glass_House_2015.jpg",
+      desc:"A 240-acre botanical garden established by Hyder Ali in 1760 and expanded by Tipu Sultan. Home to a Victorian glass house modelled on London's Crystal Palace, a 3000-million-year-old Peninsular Gneiss rock outcrop, and over 1000 species of plants. Hosts spectacular flower shows in January and August. Entry: ₹20."
+    },
+    {
+      name:"Lalbagh Lake",
+      dist:"0.5 km",
+      mode:"🚶 Walk (~6 min)",
+      img:"https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Lalbagh_Lake_Bangalore.jpg/640px-Lalbagh_Lake_Bangalore.jpg",
+      desc:"A serene lake inside Lalbagh gardens, home to migratory birds, ducks and herons. Perfect for birdwatching and peaceful walks along the bund. Most beautiful during sunrise and sunset. The lake has been restored recently and features a musical fountain."
+    },
+    {
+      name:"Kempe Gowda Tower",
+      dist:"0.8 km",
+      mode:"🚶 Walk (~10 min)",
+      img:"https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Kempe_Gowda_Tower_Lalbagh.jpg/640px-Kempe_Gowda_Tower_Lalbagh.jpg",
+      desc:"A historic watchtower built by Kempe Gowda I in the 16th century marking the original boundary of Bengaluru. One of four such towers built across the city. Offers panoramic views of Lalbagh gardens. Free entry, a short but rewarding climb."
+    }
   ],
   "Indiranagar":[
-    {name:"100 Feet Road",dist:"0.3 km",mode:"🚶 Walk (~4 min)",img:"https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/100_feet_road_indiranagar.jpg/640px-100_feet_road_indiranagar.jpg",desc:"Bengaluru's trendiest street, lined with cafes, restaurants, boutiques and bars. Home to some of the city's best dining options including international cuisine. Best experienced in the evening when the street comes alive."},
-    {name:"Ulsoor Lake",dist:"2.5 km",mode:"🛺 Auto (~₹40, 10 min)",img:"https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Ulsoor_Lake_Bangalore.jpg/640px-Ulsoor_Lake_Bangalore.jpg",desc:"A large urban lake spread over 50 acres, maintained by the Bruhat Bengaluru Mahanagara Palike. Offers boating, walking tracks and a children's play area. A peaceful escape from the busy city. Best visited in the early morning."}
+    {
+      name:"100 Feet Road",
+      dist:"0.3 km",
+      mode:"🚶 Walk (~4 min)",
+      img:"https://picsum.photos/seed/indiranagar/640/200",
+      desc:"Bengaluru's trendiest street, lined with cafes, restaurants, boutiques, bars and co-working spaces. Home to some of the city's best international dining options. The street is at its most vibrant in the evenings. Perfect for a relaxed evening stroll, dinner and coffee."
+    },
+    {
+      name:"Ulsoor Lake",
+      dist:"2.5 km",
+      mode:"🛺 Auto (~₹40, 10 min)",
+      img:"https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Ulsoor_Lake_Bangalore.jpg/640px-Ulsoor_Lake_Bangalore.jpg",
+      desc:"A large urban lake spread over 50 acres with a picturesque walking track, boating facilities and a children's play area. Popular with joggers and photographers, especially at sunrise. Boat rides available on weekends. Entry is free."
+    }
   ],
   "Yeshwanthpur":[
-    {name:"Orion Mall",dist:"1.5 km",mode:"🛺 Auto (~₹25, 8 min)",img:"https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Orion_Mall_Bangalore.jpg/640px-Orion_Mall_Bangalore.jpg",desc:"One of Bengaluru's largest and most popular malls with over 200 stores, a multiplex cinema, bowling alley and extensive food court. Easily accessible and perfect for a half-day of shopping and dining."},
-    {name:"ISKCON Temple",dist:"3 km",mode:"🛺 Auto (~₹50, 12 min)",img:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/ISKCON_Bangalore.jpg/640px-ISKCON_Bangalore.jpg",desc:"One of the largest ISKCON temples in the world, completed in 1997. Features stunning architecture across multiple levels, beautiful gardens, a multimedia theatre on the life of Krishna and an excellent vegetarian restaurant. Entry is free."}
+    {
+      name:"ISKCON Temple Bengaluru",
+      dist:"3 km",
+      mode:"🛺 Auto (~₹50, 12 min)",
+      img:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/ISKCON_Bangalore.jpg/640px-ISKCON_Bangalore.jpg",
+      desc:"One of the largest ISKCON temples in the world, completed in 1997. Features stunning architecture across seven floors, beautiful gardens, a multimedia theatre on the life of Krishna, a bookstore and an excellent vegetarian restaurant. Entry is free. Dress modestly. Open daily 7:15 AM to 8:30 PM."
+    },
+    {
+      name:"Orion Mall",
+      dist:"1.5 km",
+      mode:"🛺 Auto (~₹25, 8 min)",
+      img:"https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Orion_Mall_Bangalore.jpg/640px-Orion_Mall_Bangalore.jpg",
+      desc:"One of Bengaluru's largest premium malls with 200+ stores, a PVR multiplex cinema, bowling alley, ice skating rink and a large food court. Easily accessible and a great option for a half-day of shopping, dining and entertainment."
+    }
+  ],
+  "Whitefield (Kadugodi)":[
+    {
+      name:"Forum Shantiniketan Mall",
+      dist:"1 km",
+      mode:"🛺 Auto (~₹20, 5 min)",
+      img:"https://picsum.photos/seed/whitefield/640/200",
+      desc:"A large modern shopping mall with over 150 stores, a multiplex cinema, extensive food court and a supermarket. The go-to shopping destination for residents of Whitefield and surrounding tech park areas. Open daily 11 AM to 10 PM."
+    },
+    {
+      name:"Innovative Film City",
+      dist:"8 km",
+      mode:"🚌 Bus/Cab (~₹80, 25 min)",
+      img:"https://picsum.photos/seed/filmcity/640/200",
+      desc:"A Bollywood and entertainment-themed amusement park with film sets, a wax museum, dinosaur park, mini train rides and various shows. Great for families with children. Entry: ₹450 for adults, ₹350 for children. Open daily 10 AM to 6 PM."
+    }
+  ],
+  "Vidhana Soudha":[
+    {
+      name:"Vidhana Soudha",
+      dist:"0.2 km",
+      mode:"🚶 Walk (~3 min)",
+      img:"https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Vidhana_Soudha%2C_Bangalore.jpg/640px-Vidhana_Soudha%2C_Bangalore.jpg",
+      desc:"Karnataka's iconic state legislature building, one of the most photographed landmarks in Bengaluru. Built in 1956 in neo-Dravidian style using local granite. Illuminated every Sunday evening and national holiday. The inscription 'Government Work is God's Work' is visible on the façade."
+    },
+    {
+      name:"Attara Kacheri",
+      dist:"0.3 km",
+      mode:"🚶 Walk (~4 min)",
+      img:"https://picsum.photos/seed/attara/640/200",
+      desc:"A striking red brick colonial building completed in 1867 that now houses the Karnataka High Court. The name means 18 offices in Kannada. Features beautiful Corinthian columns and is one of the finest examples of colonial architecture in Bengaluru."
+    }
+  ],
+  "National College":[
+    {
+      name:"Bull Temple (Dodda Basavana Gudi)",
+      dist:"1.2 km",
+      mode:"🚶 Walk (~15 min)",
+      img:"https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Bull_Temple_Bangalore.jpg/640px-Bull_Temple_Bangalore.jpg",
+      desc:"A 16th century Dravidian-style temple housing a massive 4.5-metre-tall monolithic Nandi bull carved from a single granite rock — one of the largest in India. Built by Kempe Gowda I. The temple is surrounded by a peaceful garden and hosts a famous groundnut fair every November."
+    },
+    {
+      name:"Bugle Rock Park",
+      dist:"1.5 km",
+      mode:"🚶 Walk (~18 min)",
+      img:"https://picsum.photos/seed/buglerock/640/200",
+      desc:"A scenic rock garden built around a natural granite outcrop offering panoramic views of south Bengaluru. Features walking paths, a children's play area and a small amphitheatre. A peaceful escape in a residential neighbourhood. Free entry."
+    }
   ],
   "default":[
-    {name:"Explore the Neighbourhood",dist:"0.5 km",mode:"🚶 Walk",img:"",desc:"Take a walk around the area near this station. Bengaluru's neighbourhoods each have their own unique character with local markets, street food stalls and temples worth discovering."},
-    {name:"Local Street Food",dist:"0.8 km",mode:"🚶 Walk",img:"",desc:"Bengaluru is famous for its street food scene. Look for local idli-vada establishments, masala dosa shops and chaat vendors near the station for an authentic taste of the city."}
+    {
+      name:"Explore the Neighbourhood",
+      dist:"0.5 km",
+      mode:"🚶 Walk",
+      img:"https://picsum.photos/seed/bengaluru/640/200",
+      desc:"Each of Bengaluru's neighbourhoods has a unique character worth exploring. Walk around and discover local vegetable markets, neighbourhood temples, traditional darshinis (local restaurants) and street-side chai stalls for an authentic slice of daily Bengaluru life."
+    },
+    {
+      name:"Local Street Food Trail",
+      dist:"0.8 km",
+      mode:"🚶 Walk",
+      img:"https://picsum.photos/seed/streetfood/640/200",
+      desc:"Bengaluru is famous for its diverse street food culture. Look for masala dosa served with coconut chutney, idli-vada from a neighbourhood darshini, chaat vendors near markets and the famous Bengaluru-style bread omelette. Most stalls are open from 7 AM to 10 PM."
+    }
   ]
 };
 
 const STATION_INFO = {
-  "MG Road":{exits:["Exit 1: MG Road (North — Brigade Road side)","Exit 2: Residency Road (South side)"],facilities:{washroom:true,atm:true,vending:true,parking:false,lift:true,escalator:true},platforms:2,level:"Underground",tip:"Exit 1 opens directly to the MG Road shopping area. No parking at this station — reach by auto, cab or walk from nearby areas."},
-  "Majestic (KSR)":{exits:["Exit 1: KSR Railway Station (East)","Exit 2: City Market / Gupta Market (West)","Exit 3: Anand Rao Circle (North)"],facilities:{washroom:true,atm:true,vending:true,parking:false,lift:true,escalator:true},platforms:4,level:"Underground",interchange:"🟣 Purple ↔ 🟢 Green Line interchange station",tip:"Busiest station in the network — follow color-coded signs carefully. Purple Line and Green Line have separate platforms. Allow extra time during peak hours."},
-  "Indiranagar":{exits:["Exit 1: CMH Road","Exit 2: 100 Feet Road"],facilities:{washroom:true,atm:true,vending:true,parking:true,lift:true,escalator:true},platforms:2,level:"Elevated",tip:"🅿️ Parking at Exit 2 (below station). ₹20/hr 2-wheelers, ₹40/hr 4-wheelers. Monthly pass available."},
-  "Whitefield (Kadugodi)":{exits:["Exit 1: ITPL Main Road","Exit 2: Kadugodi Village"],facilities:{washroom:true,atm:true,vending:true,parking:true,lift:true,escalator:false},platforms:2,level:"Elevated",tip:"🅿️ Large parking facility at terminus. ₹20/hr for 2-wheelers, ₹40/hr for 4-wheelers. Arrive early on weekdays — fills up by 9 AM."},
-  "Baiyappanahalli":{exits:["Exit 1: Old Madras Road","Exit 2: Kasturinagar"],facilities:{washroom:true,atm:true,vending:false,parking:true,lift:true,escalator:true},platforms:2,level:"Elevated",tip:"🅿️ Terminal station with good parking. Direct bus connections to ITPL and Marathahalli from Exit 1."},
-  "Cubbon Park":{exits:["Exit 1: Cubbon Park Main Gate","Exit 2: Museum Road"],facilities:{washroom:true,atm:false,vending:true,parking:false,lift:true,escalator:true},platforms:2,level:"Underground",tip:"Exit 1 opens directly at the Cubbon Park main entrance — perfect for a visit! No parking available."},
-  "Vidhana Soudha":{exits:["Exit 1: Vidhana Soudha","Exit 2: Raj Bhavan Road"],facilities:{washroom:true,atm:false,vending:false,parking:false,lift:true,escalator:false},platforms:2,level:"Underground",tip:"A 2-minute walk from Exit 1 brings you to Vidhana Soudha. Visit on Sunday evenings for the spectacular light show."},
-  "KR Pura":{exits:["Exit 1: Old Madras Road","Exit 2: KR Pura Main Road"],facilities:{washroom:true,atm:true,vending:true,parking:true,lift:true,escalator:true},platforms:2,level:"Elevated",tip:"🅿️ Good parking facility. Frequent buses to ITPL, Whitefield and Marathahalli from the bus stand outside Exit 1."},
-  "Nagasandra":{exits:["Exit 1: Tumkur Road","Exit 2: Nagasandra Village"],facilities:{washroom:true,atm:true,vending:false,parking:true,lift:true,escalator:false},platforms:2,level:"Elevated",tip:"🅿️ Terminal station with park and ride facility — great for commuters from Tumkur Road and Peenya area."},
-  "Silk Institute":{exits:["Exit 1: Silk Institute Road","Exit 2: NICE Road Junction"],facilities:{washroom:true,atm:false,vending:false,parking:true,lift:false,escalator:false},platforms:2,level:"Elevated",tip:"🅿️ Terminal station. Good bus connections to Electronic City from outside the station."},
-  "Lalbagh":{exits:["Exit 1: Lalbagh Main Gate","Exit 2: South Gate Road"],facilities:{washroom:true,atm:false,vending:false,parking:false,lift:true,escalator:false},platforms:2,level:"Underground",tip:"Exit 1 is steps away from the Lalbagh Botanical Garden main entrance. Perfect for a garden visit!"},
-  "Yeshwanthpur":{exits:["Exit 1: Yeshwanthpur Main Road","Exit 2: BMTC Bus Stand"],facilities:{washroom:true,atm:true,vending:true,parking:true,lift:true,escalator:true},platforms:2,level:"Elevated",tip:"🅿️ Good parking. Excellent BMTC bus connectivity to most parts of Bengaluru from Exit 2."},
-  "default":{exits:["Exit 1: Main Road","Exit 2: Side Road"],facilities:{washroom:true,atm:false,vending:false,parking:false,lift:true,escalator:false},platforms:2,level:"Elevated",tip:"Follow station signage for exits. Token vending machines at concourse level."}
+  "MG Road":{
+    exits:["Exit 1: MG Road (North — Brigade Road side)","Exit 2: Residency Road (South)"],
+    facilities:{washroom:true,atm:true,vending:true,parking:false,lift:true,escalator:true},
+    platforms:2,level:"Underground",
+    tip:"Exit 1 opens directly to MG Road shopping area. No parking — reach by auto, cab or walk."
+  },
+  "Majestic (KSR)":{
+    exits:["Exit 1: KSR Railway Station (East)","Exit 2: City Market / Gupta Market (West)","Exit 3: Anand Rao Circle (North)"],
+    facilities:{washroom:true,atm:true,vending:true,parking:false,lift:true,escalator:true},
+    platforms:4,level:"Underground",
+    interchange:"🟣 Purple ↔ 🟢 Green Line interchange station",
+    tip:"Busiest station — follow color-coded signs carefully. Allow extra time during peak hours."
+  },
+  "Indiranagar":{
+    exits:["Exit 1: CMH Road","Exit 2: 100 Feet Road"],
+    facilities:{washroom:true,atm:true,vending:true,parking:true,lift:true,escalator:true},
+    platforms:2,level:"Elevated",
+    tip:"🅿️ Parking at Exit 2. ₹20/hr 2-wheelers, ₹40/hr 4-wheelers. Monthly pass available."
+  },
+  "Whitefield (Kadugodi)":{
+    exits:["Exit 1: ITPL Main Road","Exit 2: Kadugodi Village"],
+    facilities:{washroom:true,atm:true,vending:true,parking:true,lift:true,escalator:true},
+    platforms:2,level:"Elevated",
+    tip:"🅿️ Large parking facility. Arrive early on weekdays — fills up by 9 AM."
+  },
+  "Baiyappanahalli":{
+    exits:["Exit 1: Old Madras Road","Exit 2: Kasturinagar"],
+    facilities:{washroom:true,atm:true,vending:true,parking:true,lift:true,escalator:true},
+    platforms:2,level:"Elevated",
+    tip:"🅿️ Terminal station with good parking. Direct buses to ITPL and Marathahalli from Exit 1."
+  },
+  "Cubbon Park":{
+    exits:["Exit 1: Cubbon Park Main Gate","Exit 2: Museum Road"],
+    facilities:{washroom:true,atm:true,vending:false,parking:false,lift:true,escalator:true},
+    platforms:2,level:"Underground",
+    tip:"Exit 1 opens directly at the Cubbon Park main entrance. No parking available."
+  },
+  "Vidhana Soudha":{
+    exits:["Exit 1: Vidhana Soudha","Exit 2: Raj Bhavan Road"],
+    facilities:{washroom:true,atm:true,vending:false,parking:false,lift:true,escalator:true},
+    platforms:2,level:"Underground",
+    tip:"2 minutes from Exit 1 to Vidhana Soudha. Visit Sunday evenings for the light show."
+  },
+  "Sir M Visvesvaraya":{
+    exits:["Exit 1: Dr Ambedkar Road","Exit 2: Kasturba Road"],
+    facilities:{washroom:true,atm:true,vending:false,parking:false,lift:true,escalator:true},
+    platforms:2,level:"Underground",
+    tip:"Close to the Indian Meteorological Department and Cubbon Park. Quiet station."
+  },
+  "KR Pura":{
+    exits:["Exit 1: Old Madras Road","Exit 2: KR Pura Main Road"],
+    facilities:{washroom:true,atm:true,vending:true,parking:true,lift:true,escalator:true},
+    platforms:2,level:"Elevated",
+    tip:"🅿️ Good parking facility. Frequent buses to ITPL and Whitefield from bus stand outside."
+  },
+  "Nagasandra":{
+    exits:["Exit 1: Tumkur Road","Exit 2: Nagasandra Village"],
+    facilities:{washroom:true,atm:true,vending:false,parking:true,lift:true,escalator:true},
+    platforms:2,level:"Elevated",
+    tip:"🅿️ Terminal station with park and ride. Great for Tumkur Road and Peenya commuters."
+  },
+  "Silk Institute":{
+    exits:["Exit 1: Silk Institute Road","Exit 2: NICE Road Junction"],
+    facilities:{washroom:true,atm:true,vending:false,parking:true,lift:true,escalator:false},
+    platforms:2,level:"Elevated",
+    tip:"🅿️ Terminal station. Good bus connections to Electronic City from outside."
+  },
+  "Challaghatta":{
+    exits:["Exit 1: Challaghatta Village","Exit 2: NICE Road"],
+    facilities:{washroom:true,atm:true,vending:false,parking:true,lift:true,escalator:false},
+    platforms:2,level:"Elevated",
+    tip:"🅿️ New terminus station with ample parking. Less crowded — good park and ride option."
+  },
+  "Kengeri":{
+    exits:["Exit 1: Kengeri Main Road","Exit 2: Satellite Town"],
+    facilities:{washroom:true,atm:true,vending:true,parking:true,lift:true,escalator:true},
+    platforms:2,level:"Elevated",
+    tip:"🅿️ Good parking and bus interchange. Useful for NICE Road and Mysuru Road commuters."
+  },
+  "Mysuru Road":{
+    exits:["Exit 1: Mysuru Road (National Highway)","Exit 2: Nayandahalli Road"],
+    facilities:{washroom:true,atm:true,vending:false,parking:true,lift:true,escalator:true},
+    platforms:2,level:"Elevated",
+    tip:"🅿️ Good parking available. Well connected to Mysuru Road bus terminus nearby."
+  },
+  "Lalbagh":{
+    exits:["Exit 1: Lalbagh Main Gate","Exit 2: South Gate Road"],
+    facilities:{washroom:true,atm:true,vending:false,parking:false,lift:true,escalator:true},
+    platforms:2,level:"Underground",
+    tip:"Exit 1 is steps away from Lalbagh Botanical Garden. Perfect starting point for a visit!"
+  },
+  "Yeshwanthpur":{
+    exits:["Exit 1: Yeshwanthpur Main Road","Exit 2: BMTC Bus Stand"],
+    facilities:{washroom:true,atm:true,vending:true,parking:true,lift:true,escalator:true},
+    platforms:2,level:"Elevated",
+    tip:"🅿️ Good parking. Excellent BMTC bus connectivity to most parts of Bengaluru from Exit 2."
+  },
+  "Rajajinagar":{
+    exits:["Exit 1: 11th Cross Rajajinagar","Exit 2: Rajajinagar Main Road"],
+    facilities:{washroom:true,atm:true,vending:true,parking:false,lift:true,escalator:true},
+    platforms:2,level:"Elevated",
+    tip:"Close to Rajajinagar Industrial Area. No parking — busy residential station."
+  },
+  "Jayanagar":{
+    exits:["Exit 1: 11th Cross Jayanagar","Exit 2: Jayanagar Shopping Complex"],
+    facilities:{washroom:true,atm:true,vending:false,parking:false,lift:true,escalator:true},
+    platforms:2,level:"Underground",
+    tip:"Exit 2 is steps from the famous Jayanagar 4th Block shopping complex."
+  },
+  "South End Circle":{
+    exits:["Exit 1: DVG Road","Exit 2: KH Road"],
+    facilities:{washroom:true,atm:true,vending:false,parking:false,lift:true,escalator:true},
+    platforms:2,level:"Underground",
+    tip:"Good access to Jayanagar and Basavanagudi areas. Near Bull Temple Road."
+  },
+  "National College":{
+    exits:["Exit 1: National College Road","Exit 2: Tagore Road"],
+    facilities:{washroom:true,atm:true,vending:false,parking:false,lift:true,escalator:true},
+    platforms:2,level:"Underground",
+    tip:"Near Bull Temple and Dodda Ganesha Temple. Lalbagh South Gate is a 15-minute walk."
+  },
+  "Yelachenahalli":{
+    exits:["Exit 1: JP Nagar 6th Phase","Exit 2: Yelachenahalli Road"],
+    facilities:{washroom:true,atm:true,vending:false,parking:true,lift:true,escalator:true},
+    platforms:2,level:"Elevated",
+    tip:"🅿️ Parking available. Good connectivity to JP Nagar and Bannerghatta Road."
+  },
+  "Baiyappanahalli":{
+    exits:["Exit 1: Old Madras Road","Exit 2: Kasturinagar Road"],
+    facilities:{washroom:true,atm:true,vending:true,parking:true,lift:true,escalator:true},
+    platforms:2,level:"Elevated",
+    tip:"🅿️ Terminal station for Purple Line (east). Large parking, BMTC bus interchange."
+  },
+  "default":{
+    exits:["Exit 1: Main Road","Exit 2: Side Road"],
+    facilities:{washroom:true,atm:true,vending:false,parking:false,lift:true,escalator:true},
+    platforms:2,level:"Elevated",
+    tip:"Follow station signage for exits. Token vending machines available at concourse level."
+  }
 };
 
 const TRAVEL_MS = 4000, HALT_MS = 1000;
