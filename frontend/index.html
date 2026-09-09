@@ -229,19 +229,6 @@
     .qr-box{width:120px;height:120px;background:white;border-radius:12px;margin:16px auto;display:flex;align-items:center;justify-content:center;font-size:11px;color:#333;text-align:center;padding:8px;font-family:var(--mono);}
     .booking-id{font-family:var(--mono);font-size:16px;color:var(--green);background:var(--green-dim);padding:8px 16px;border-radius:8px;display:inline-block;margin-top:8px;}
 
-    /* PLAN MY DAY */
-    .journey-segment{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:10px;position:relative;}
-    .seg-num{position:absolute;top:-8px;left:12px;background:var(--green);color:#000;font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;font-family:var(--mono);}
-    .seg-remove{position:absolute;top:8px;right:8px;background:var(--red-dim);border:1px solid var(--red);border-radius:6px;color:var(--red);font-size:11px;cursor:pointer;padding:2px 8px;}
-    .plan-result{display:none;animation:fadeUp 0.4s ease;}
-    .plan-result.on{display:block;}
-    .plan-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
-    .plan-item:last-child{border-bottom:none;}
-    .plan-time{font-family:var(--mono);font-size:12px;color:var(--green);min-width:50px;}
-    .plan-detail{flex:1;}
-    .plan-title{font-size:13px;font-weight:600;margin-bottom:2px;}
-    .plan-sub{font-size:11px;color:var(--muted);}
-
     /* DAILY PASS */
     .pass-grid{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:12px;}
     .pass-card{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:16px;cursor:pointer;transition:all 0.2s;position:relative;}
@@ -349,12 +336,6 @@
         <span class="fc-icon">🎟️</span>
         <div class="fc-name">Book Ticket</div>
         <div class="fc-desc">Single & return journey tickets</div>
-      </div>
-      <div class="fc live" onclick="goTo('pgPlanDay')">
-        <span class="fc-badge bl">NEW</span>
-        <span class="fc-icon">🗓️</span>
-        <div class="fc-name">Plan My Day</div>
-        <div class="fc-desc">Smart metro journey planner</div>
       </div>
       <div class="fc live" onclick="goTo('pgDailyPass')">
         <span class="fc-badge bl">NEW</span>
@@ -744,7 +725,13 @@ const GREEN_LINE = [
   "Jayanagar 4th Block","Yelachenahalli","Doddakallasandra",
   "Konankunte Cross","Vajrahalli","Thalaghattapura","Silk Institute"
 ];
-const ALL_STATIONS = [...new Set([...PURPLE_LINE, ...GREEN_LINE])];
+const YELLOW_LINE = [
+  "Rashtreeya Vidyalaya Road","Ragigudda","Jayadeva Hospital","BTM Layout",
+  "Central Silk Board","Bommanahalli","Hongasandra","Kudlu Gate",
+  "Singasandra","Hosa Road","Beratena Agrahara","Electronic City",
+  "Konappana Agrahara","Huskur Road","Biocon Hebbagodi","Bommasandra"
+];
+const ALL_STATIONS = [...new Set([...PURPLE_LINE, ...GREEN_LINE, ...YELLOW_LINE])];
 
 // Tourist spots with images (using Unsplash for real photos)
 const TOURIST_SPOTS = {
@@ -753,21 +740,21 @@ const TOURIST_SPOTS = {
       name:"Cubbon Park",
       dist:"1.2 km",
       mode:"🚶 Walk (~15 min)",
-      img:"https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Cubbon_Park%2C_Bangalore.jpg/640px-Cubbon_Park%2C_Bangalore.jpg",
+      img:"https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Cubbon_Park_W.jpg/330px-Cubbon_Park_W.jpg",
       desc:"A sprawling 300-acre botanical garden established in 1870. Home to over 6000 trees, a Victorian glass house, and beautiful walking paths. The park houses the Karnataka High Court, State Museum and Venkatappa Art Gallery. Entry is free and the park is open all days. Best visited early morning for a peaceful experience."
     },
     {
       name:"Commercial Street",
       dist:"0.8 km",
       mode:"🚶 Walk (~10 min)",
-      img:"https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Commercial_Street_Bangalore.jpg/640px-Commercial_Street_Bangalore.jpg",
+      img:"https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Commercial_Street%2C_Bengaluru%2C_KA%2C_India.jpg/330px-Commercial_Street%2C_Bengaluru%2C_KA%2C_India.jpg",
       desc:"Bengaluru's most iconic shopping street stretching over 500 metres, lined with 200+ shops selling clothes, jewellery, accessories, electronics and street food. Best visited on weekday evenings. Bargaining is expected and welcomed at most shops. Famous for its chaotic yet charming atmosphere."
     },
     {
       name:"Brigade Road",
       dist:"0.3 km",
       mode:"🚶 Walk (~4 min)",
-      img:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Brigade_Road_Bangalore.jpg/640px-Brigade_Road_Bangalore.jpg",
+      img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bf/Brigade_Road_Bengaluru.jpg/330px-Brigade_Road_Bengaluru.jpg",
       desc:"One of Bengaluru's most popular commercial streets lined with branded stores, cafes, restaurants and entertainment venues. A great place for shopping and people-watching. The street is at its liveliest during weekends and evenings."
     }
   ],
@@ -776,21 +763,21 @@ const TOURIST_SPOTS = {
       name:"Cubbon Park",
       dist:"0.1 km",
       mode:"🚶 Walk (~2 min)",
-      img:"https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Cubbon_Park%2C_Bangalore.jpg/640px-Cubbon_Park%2C_Bangalore.jpg",
+      img:"https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Cubbon_Park_W.jpg/330px-Cubbon_Park_W.jpg",
       desc:"300-acre botanical garden and one of Bengaluru's most beloved green spaces. Features rare trees, a glass house, Karnataka High Court building, museums and open lawns. Ideal for morning jogs, picnics and birdwatching. Free entry, open all days 6 AM to 6 PM."
     },
     {
       name:"Vidhana Soudha",
       dist:"0.8 km",
       mode:"🚶 Walk (~10 min)",
-      img:"https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Vidhana_Soudha%2C_Bangalore.jpg/640px-Vidhana_Soudha%2C_Bangalore.jpg",
+      img:"https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Vidhana_Soudha_2012.jpg/330px-Vidhana_Soudha_2012.jpg",
       desc:"The iconic seat of Karnataka's state legislature built in 1956 in a striking neo-Dravidian style. Illuminated spectacularly with thousands of lights every Sunday evening and national holiday. Photography from outside is a must-do for every visitor to Bengaluru."
     },
     {
       name:"Karnataka State Museum",
       dist:"0.4 km",
       mode:"🚶 Walk (~5 min)",
-      img:"https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Government_Museum_Bangalore.jpg/640px-Government_Museum_Bangalore.jpg",
+      img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e9/Government_Museum_Banglore_305.jpg/330px-Government_Museum_Banglore_305.jpg",
       desc:"One of the oldest museums in India established in 1865, housing rich collections of art, sculpture, archaeology and natural history. Includes separate sections for geology, zoology, numismatics and folk art. Entry fee: ₹20 for adults, ₹10 for children. Closed on Mondays."
     }
   ],
@@ -799,21 +786,21 @@ const TOURIST_SPOTS = {
       name:"Tipu Sultan's Summer Palace",
       dist:"2.5 km",
       mode:"🛺 Auto (~₹40, 10 min)",
-      img:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Tipu_Sultan%27s_Summer_Palace_Bangalore.jpg/640px-Tipu_Sultan%27s_Summer_Palace_Bangalore.jpg",
+      img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/1/13/Tippu_Sultan%27s_Summer_palace.jpg/330px-Tippu_Sultan%27s_Summer_palace.jpg",
       desc:"An exquisite 18th century wooden palace of Tipu Sultan built entirely of teak. Features stunning Indo-Islamic architecture with ornate pillars, arched verandas and ceilings painted with floral and battle motifs. Entry: ₹15 for Indians, ₹200 for foreigners. Open all days 8 AM to 5:30 PM except national holidays."
     },
     {
       name:"KR Market (City Market)",
       dist:"1.5 km",
       mode:"🛺 Auto (~₹30, 8 min)",
-      img:"https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/KR_Market_Bangalore.jpg/640px-KR_Market_Bangalore.jpg",
+      img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/5/57/K.R._Market.jpg/330px-K.R._Market.jpg",
       desc:"One of Asia's largest wholesale flower markets and Bengaluru's most colourful cultural experience. Best visited at dawn (4–7 AM) when fresh flowers arrive from across Karnataka. Also sells fruits, vegetables, spices and earthen pots. A photographer's paradise of vibrant colours and bustling energy."
     },
     {
       name:"Bengaluru City Railway Station",
       dist:"0.2 km",
       mode:"🚶 Walk (~3 min)",
-      img:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Krantivira_Sangolli_Rayanna_Station%2C_Bangalore.jpg/640px-Krantivira_Sangolli_Rayanna_Station%2C_Bangalore.jpg",
+      img:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/KSRBengaluruEntrance.jpg/330px-KSRBengaluruEntrance.jpg",
       desc:"A grand heritage railway station serving over 200 trains daily and one of the busiest in South India. The station façade features beautiful colonial architecture. Worth a quick visit to admire the heritage building even if you are not catching a train."
     }
   ],
@@ -822,21 +809,21 @@ const TOURIST_SPOTS = {
       name:"Lalbagh Botanical Garden",
       dist:"0.3 km",
       mode:"🚶 Walk (~4 min)",
-      img:"https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Lalbagh_Glass_House_2015.jpg/640px-Lalbagh_Glass_House_2015.jpg",
+      img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d5/Glasshouse_and_fountain_at_lalbagh.jpg/330px-Glasshouse_and_fountain_at_lalbagh.jpg",
       desc:"A 240-acre botanical garden established by Hyder Ali in 1760 and expanded by Tipu Sultan. Home to a Victorian glass house modelled on London's Crystal Palace, a 3000-million-year-old Peninsular Gneiss rock outcrop, and over 1000 species of plants. Hosts spectacular flower shows in January and August. Entry: ₹20."
     },
     {
       name:"Lalbagh Lake",
       dist:"0.5 km",
       mode:"🚶 Walk (~6 min)",
-      img:"https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Lalbagh_Lake_Bangalore.jpg/640px-Lalbagh_Lake_Bangalore.jpg",
+      img:"https://picsum.photos/seed/lalbaghlake/640/200",
       desc:"A serene lake inside Lalbagh gardens, home to migratory birds, ducks and herons. Perfect for birdwatching and peaceful walks along the bund. Most beautiful during sunrise and sunset. The lake has been restored recently and features a musical fountain."
     },
     {
       name:"Kempe Gowda Tower",
       dist:"0.8 km",
       mode:"🚶 Walk (~10 min)",
-      img:"https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Kempe_Gowda_Tower_Lalbagh.jpg/640px-Kempe_Gowda_Tower_Lalbagh.jpg",
+      img:"https://picsum.photos/seed/kempegowdatower/640/200",
       desc:"A historic watchtower built by Kempe Gowda I in the 16th century marking the original boundary of Bengaluru. One of four such towers built across the city. Offers panoramic views of Lalbagh gardens. Free entry, a short but rewarding climb."
     }
   ],
@@ -852,7 +839,7 @@ const TOURIST_SPOTS = {
       name:"Ulsoor Lake",
       dist:"2.5 km",
       mode:"🛺 Auto (~₹40, 10 min)",
-      img:"https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Ulsoor_Lake_Bangalore.jpg/640px-Ulsoor_Lake_Bangalore.jpg",
+      img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5d/Ulsoor_lake_Bangalore_India.jpg/330px-Ulsoor_lake_Bangalore_India.jpg",
       desc:"A large urban lake spread over 50 acres with a picturesque walking track, boating facilities and a children's play area. Popular with joggers and photographers, especially at sunrise. Boat rides available on weekends. Entry is free."
     }
   ],
@@ -861,14 +848,14 @@ const TOURIST_SPOTS = {
       name:"ISKCON Temple Bengaluru",
       dist:"3 km",
       mode:"🛺 Auto (~₹50, 12 min)",
-      img:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/ISKCON_Bangalore.jpg/640px-ISKCON_Bangalore.jpg",
+      img:"https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/ISKCON_Bangalore_Temple.jpg/330px-ISKCON_Bangalore_Temple.jpg",
       desc:"One of the largest ISKCON temples in the world, completed in 1997. Features stunning architecture across seven floors, beautiful gardens, a multimedia theatre on the life of Krishna, a bookstore and an excellent vegetarian restaurant. Entry is free. Dress modestly. Open daily 7:15 AM to 8:30 PM."
     },
     {
       name:"Orion Mall",
       dist:"1.5 km",
       mode:"🛺 Auto (~₹25, 8 min)",
-      img:"https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Orion_Mall_Bangalore.jpg/640px-Orion_Mall_Bangalore.jpg",
+      img:"https://picsum.photos/seed/orionmall/640/200",
       desc:"One of Bengaluru's largest premium malls with 200+ stores, a PVR multiplex cinema, bowling alley, ice skating rink and a large food court. Easily accessible and a great option for a half-day of shopping, dining and entertainment."
     }
   ],
@@ -893,7 +880,7 @@ const TOURIST_SPOTS = {
       name:"Vidhana Soudha",
       dist:"0.2 km",
       mode:"🚶 Walk (~3 min)",
-      img:"https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Vidhana_Soudha%2C_Bangalore.jpg/640px-Vidhana_Soudha%2C_Bangalore.jpg",
+      img:"https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Vidhana_Soudha_2012.jpg/330px-Vidhana_Soudha_2012.jpg",
       desc:"Karnataka's iconic state legislature building, one of the most photographed landmarks in Bengaluru. Built in 1956 in neo-Dravidian style using local granite. Illuminated every Sunday evening and national holiday. The inscription 'Government Work is God's Work' is visible on the façade."
     },
     {
@@ -909,7 +896,7 @@ const TOURIST_SPOTS = {
       name:"Bull Temple (Dodda Basavana Gudi)",
       dist:"1.2 km",
       mode:"🚶 Walk (~15 min)",
-      img:"https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Bull_Temple_Bangalore.jpg/640px-Bull_Temple_Bangalore.jpg",
+      img:"https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Dodda_Ganeshana_Gudi_Hindu_temple%2C_Basavanagudi%2C_Karnataka%2C_India.jpg/330px-Dodda_Ganeshana_Gudi_Hindu_temple%2C_Basavanagudi%2C_Karnataka%2C_India.jpg",
       desc:"A 16th century Dravidian-style temple housing a massive 4.5-metre-tall monolithic Nandi bull carved from a single granite rock — one of the largest in India. Built by Kempe Gowda I. The temple is surrounded by a peaceful garden and hosts a famous groundnut fair every November."
     },
     {
@@ -1125,7 +1112,9 @@ function makeOpts(fromId, toId, defFrom, defTo) {
     PURPLE_LINE.forEach(s => pg.appendChild(new Option(s,s,false,s===(idx===0?defFrom:defTo))));
     const gg = document.createElement('optgroup'); gg.label = '🟢 Green Line';
     GREEN_LINE.forEach(s => { if(!PURPLE_LINE.includes(s)) gg.appendChild(new Option(s,s)); });
-    sel.appendChild(pg); sel.appendChild(gg);
+    const yg = document.createElement('optgroup'); yg.label = '🟡 Yellow Line';
+    YELLOW_LINE.forEach(s => { if(!PURPLE_LINE.includes(s) && !GREEN_LINE.includes(s)) yg.appendChild(new Option(s,s)); });
+    sel.appendChild(pg); sel.appendChild(gg); sel.appendChild(yg);
   });
 }
 
@@ -1137,7 +1126,9 @@ function makeSingle(selId, def) {
   PURPLE_LINE.forEach(s => pg.appendChild(new Option(s,s,false,s===def)));
   const gg = document.createElement('optgroup'); gg.label = '🟢 Green Line';
   GREEN_LINE.forEach(s => { if(!PURPLE_LINE.includes(s)) gg.appendChild(new Option(s,s)); });
-  el.appendChild(pg); el.appendChild(gg);
+  const yg = document.createElement('optgroup'); yg.label = '🟡 Yellow Line';
+  YELLOW_LINE.forEach(s => { if(!PURPLE_LINE.includes(s) && !GREEN_LINE.includes(s)) yg.appendChild(new Option(s,s)); });
+  el.appendChild(pg); el.appendChild(gg); el.appendChild(yg);
 }
 
 function populateAll() {
@@ -1148,7 +1139,6 @@ function populateAll() {
   makeSingle('bpStation','MG Road');
   loadTourism();
   loadBlueprint();
-  initPlanDay();
 }
 
 // ===== JOURNEY (ETA + DENSITY) =====
@@ -1304,6 +1294,7 @@ function renderTrains(trains) {
 function getLine(station) {
   if(PURPLE_LINE.includes(station)) return PURPLE_LINE;
   if(GREEN_LINE.includes(station)) return GREEN_LINE;
+  if(YELLOW_LINE.includes(station)) return YELLOW_LINE;
   return PURPLE_LINE;
 }
 
@@ -1461,8 +1452,14 @@ function renderNearestStations(stations, userLat, userLng) {
       </div>
     </div>
     ${stations.map((st, i) => {
-      const lineEmoji = st.line==='purple'?'🟣':st.line==='green'?'🟢':'🟣🟢';
-      const lineText = st.line==='purple'?'Purple Line':st.line==='green'?'Green Line':'Purple & Green Line';
+      const LINE_LABELS = {
+        purple:{emoji:'🟣',text:'Purple Line'},
+        green:{emoji:'🟢',text:'Green Line'},
+        yellow:{emoji:'🟡',text:'Yellow Line'},
+        both:{emoji:'🟣🟢',text:'Purple & Green Line'},
+        'green-yellow':{emoji:'🟢🟡',text:'Green & Yellow Line'}
+      };
+      const {emoji:lineEmoji, text:lineText} = LINE_LABELS[st.line] || LINE_LABELS.purple;
       return `<div class="near-station-card ${i===0?'top':''}">
         <div class="near-rank">${i===0?'🏆 NEAREST':'#'+( i+1)} STATION</div>
         <div class="near-name">${st.station}</div>
@@ -1623,50 +1620,6 @@ function resetBooking() {
 }
 
 
-
-
-
-function addSegment() {
-  const idx = segments.length;
-  segments.push({from:'MG Road',to:'Indiranagar',time:'09:00'});
-  const container = document.getElementById('segmentsContainer');
-  const div = document.createElement('div');
-  div.className = 'journey-segment';
-  div.id = `seg${idx}`;
-  div.innerHTML = `
-    <div class="seg-num">Leg ${idx+1}</div>
-    ${idx>0?`<div class="seg-remove" onclick="removeSegment(${idx})">✕ Remove</div>`:''}
-    <div class="row2" style="margin-top:10px;">
-      <div>
-        <div class="lbl">FROM</div>
-        <select onchange="segments[${idx}].from=this.value" style="margin-bottom:0;"></select>
-      </div>
-      <div>
-        <div class="lbl">TO</div>
-        <select onchange="segments[${idx}].to=this.value" style="margin-bottom:0;"></select>
-      </div>
-    </div>
-    <div style="margin-top:8px;">
-      <div class="lbl">DEPARTURE TIME</div>
-      <input type="time" value="0${9+idx}:00" onchange="segments[${idx}].time=this.value" style="margin-bottom:0;"/>
-    </div>`;
-  container.appendChild(div);
-
-  // Populate selects
-  const sels = div.querySelectorAll('select');
-  PURPLE_LINE.forEach(s => {
-    sels[0].add(new Option(s,s,false,s==='MG Road'));
-    sels[1].add(new Option(s,s,false,s==='Indiranagar'));
-  });
-  GREEN_LINE.forEach(s => {
-    if(!PURPLE_LINE.includes(s)){
-      sels[0].add(new Option(s,s));
-      sels[1].add(new Option(s,s));
-    }
-  });
-
-  if(segments.length > 0) document.getElementById('planBtn').style.display = 'block';
-}
 // ===== DAILY PASS =====
 let selectedPass = {id:'1day', price:50, name:'1 Day Pass'};
 
@@ -1759,8 +1712,15 @@ function resetRecharge() {
 }
 
 // ===== INIT =====
+// Always show the login/signup screen first (it's the default "on" screen in HTML).
+// If we recognise this device, prefill the form so returning users just confirm and continue.
 const saved = localStorage.getItem('tm_user');
-if(saved){ const u = JSON.parse(saved); initLanding(u.name); }
+if(saved){
+  const u = JSON.parse(saved);
+  document.getElementById('suName').value = u.name;
+  document.getElementById('suPhone').value = u.phone;
+  document.querySelector('.su-btn').textContent = 'Log In →';
+}
 </script>
 </body>
 </html>

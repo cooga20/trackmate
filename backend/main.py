@@ -35,6 +35,13 @@ GREEN_LINE = [
     "Konankunte Cross","Vajrahalli","Thalaghattapura","Silk Institute"
 ]
 
+YELLOW_LINE = [
+    "Rashtreeya Vidyalaya Road","Ragigudda","Jayadeva Hospital","BTM Layout",
+    "Central Silk Board","Bommanahalli","Hongasandra","Kudlu Gate",
+    "Singasandra","Hosa Road","Beratena Agrahara","Electronic City",
+    "Konappana Agrahara","Huskur Road","Biocon Hebbagodi","Bommasandra"
+]
+
 STATION_COORDS = {
     "Challaghatta":{"lat":12.9022,"lng":77.4921,"line":"purple","parking":True},
     "Kengeri":{"lat":12.9107,"lng":77.4872,"line":"purple","parking":True},
@@ -93,7 +100,7 @@ STATION_COORDS = {
     "Krishna Rajendra Market":{"lat":12.9667,"lng":77.5734,"line":"green","parking":False},
     "National College":{"lat":12.9612,"lng":77.5756,"line":"green","parking":False},
     "Lalbagh":{"lat":12.9534,"lng":77.5801,"line":"green","parking":False},
-    "Rashtreeya Vidyalaya Road":{"lat":12.9489,"lng":77.5834,"line":"green","parking":False},
+    "Rashtreeya Vidyalaya Road":{"lat":12.9489,"lng":77.5834,"line":"green-yellow","parking":False},
     "South End Circle":{"lat":12.9423,"lng":77.5867,"line":"green","parking":False},
     "Jayanagar":{"lat":12.9345,"lng":77.5934,"line":"green","parking":False},
     "Jayanagar 4th Block":{"lat":12.9289,"lng":77.5978,"line":"green","parking":False},
@@ -103,6 +110,21 @@ STATION_COORDS = {
     "Vajrahalli":{"lat":12.8845,"lng":77.6178,"line":"green","parking":False},
     "Thalaghattapura":{"lat":12.8712,"lng":77.6234,"line":"green","parking":False},
     "Silk Institute":{"lat":12.8578,"lng":77.6289,"line":"green","parking":True},
+    "Ragigudda":{"lat":12.9345,"lng":77.5978,"line":"yellow","parking":False},
+    "Jayadeva Hospital":{"lat":12.9186,"lng":77.5966,"line":"yellow","parking":False},
+    "BTM Layout":{"lat":12.9153,"lng":77.6101,"line":"yellow","parking":False},
+    "Central Silk Board":{"lat":12.9172,"lng":77.6228,"line":"yellow","parking":False},
+    "Bommanahalli":{"lat":12.9068,"lng":77.6231,"line":"yellow","parking":False},
+    "Hongasandra":{"lat":12.8967,"lng":77.6252,"line":"yellow","parking":False},
+    "Kudlu Gate":{"lat":12.8886,"lng":77.6288,"line":"yellow","parking":False},
+    "Singasandra":{"lat":12.8811,"lng":77.6317,"line":"yellow","parking":False},
+    "Hosa Road":{"lat":12.8698,"lng":77.6379,"line":"yellow","parking":False},
+    "Beratena Agrahara":{"lat":12.8567,"lng":77.6434,"line":"yellow","parking":False},
+    "Electronic City":{"lat":12.8452,"lng":77.6602,"line":"yellow","parking":True},
+    "Konappana Agrahara":{"lat":12.8398,"lng":77.6689,"line":"yellow","parking":False},
+    "Huskur Road":{"lat":12.8323,"lng":77.6756,"line":"yellow","parking":False},
+    "Biocon Hebbagodi":{"lat":12.8234,"lng":77.6823,"line":"yellow","parking":False},
+    "Bommasandra":{"lat":12.8159,"lng":77.6889,"line":"yellow","parking":True},
 }
 
 def haversine(lat1,lng1,lat2,lng2):
@@ -295,9 +317,15 @@ def get_eta(from_station: str, to_station: str):
             stops = abs(ti - fi)
             km = round(stops * 0.77, 1)
             direction = "southbound" if ti > fi else "northbound"
+        elif from_station in YELLOW_LINE and to_station in YELLOW_LINE:
+            fi = YELLOW_LINE.index(from_station)
+            ti = YELLOW_LINE.index(to_station)
+            stops = abs(ti - fi)
+            km = round(stops * 1.28, 1)
+            direction = "southbound" if ti > fi else "northbound"
         else:
             stops = 12; km = 15.0
-            direction = "via Majestic interchange"
+            direction = "via Majestic/RV Road interchange"
         fare = get_fare(km)
         return {
             "from": from_station, "to": to_station,
@@ -313,7 +341,7 @@ def get_eta(from_station: str, to_station: str):
 
 @app.get("/stations")
 def get_stations():
-    return {"purple_line": PURPLE_LINE, "green_line": GREEN_LINE}
+    return {"purple_line": PURPLE_LINE, "green_line": GREEN_LINE, "yellow_line": YELLOW_LINE}
 
 @app.get("/trains")
 def get_trains(station: str):
@@ -370,6 +398,9 @@ def fare(from_station: str, to_station: str):
         elif from_station in GREEN_LINE and to_station in GREEN_LINE:
             stops = abs(GREEN_LINE.index(from_station) - GREEN_LINE.index(to_station))
             km = round(stops * 0.77, 1)
+        elif from_station in YELLOW_LINE and to_station in YELLOW_LINE:
+            stops = abs(YELLOW_LINE.index(from_station) - YELLOW_LINE.index(to_station))
+            km = round(stops * 1.28, 1)
         else:
             stops = 12; km = 15.0
         f = get_fare(km)
