@@ -4,7 +4,7 @@ import glob
 import random
 
 # Paths
-BASE = r"C:\Users\nidhi\OneDrive\Desktop\trackmate"
+BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CCTV_TRAIN = os.path.join(BASE, "data", "raw", "CCTV Indoor Person Detection.v1i.yolov8", "train")
 CCTV_VAL = os.path.join(BASE, "data", "raw", "CCTV Indoor Person Detection.v1i.yolov8", "valid")
 PROCESSED = os.path.join(BASE, "data", "processed")

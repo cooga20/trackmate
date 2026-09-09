@@ -4,7 +4,7 @@ import random
 import glob
 
 # Paths
-BASE = r"C:\Users\nidhi\OneDrive\Desktop\trackmate"
+BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SHANGHAITECH = os.path.join(BASE, "data", "raw", "ShanghaiTech")
 ANNOTATIONS = os.path.join(BASE, "data", "annotations")
 PROCESSED = os.path.join(BASE, "data", "processed")

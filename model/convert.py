@@ -3,12 +3,13 @@ import os
 import glob
 
 # Paths
-PART_A_TRAIN = r"C:\Users\nidhi\OneDrive\Desktop\trackmate\data\raw\ShanghaiTech\part_A\train_data"
-PART_A_TEST  = r"C:\Users\nidhi\OneDrive\Desktop\trackmate\data\raw\ShanghaiTech\part_A\test_data"
-PART_B_TRAIN = r"C:\Users\nidhi\OneDrive\Desktop\trackmate\data\raw\ShanghaiTech\part_B\train_data"
-PART_B_TEST  = r"C:\Users\nidhi\OneDrive\Desktop\trackmate\data\raw\ShanghaiTech\part_B\test_data"
+BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PART_A_TRAIN = os.path.join(BASE, "data", "raw", "ShanghaiTech", "part_A", "train_data")
+PART_A_TEST  = os.path.join(BASE, "data", "raw", "ShanghaiTech", "part_A", "test_data")
+PART_B_TRAIN = os.path.join(BASE, "data", "raw", "ShanghaiTech", "part_B", "train_data")
+PART_B_TEST  = os.path.join(BASE, "data", "raw", "ShanghaiTech", "part_B", "test_data")
 
-OUTPUT_DIR = r"C:\Users\nidhi\OneDrive\Desktop\trackmate\data\annotations"
+OUTPUT_DIR = os.path.join(BASE, "data", "annotations")
 
 COACH_CAPACITY = 180  # Namma Metro coach capacity
 
