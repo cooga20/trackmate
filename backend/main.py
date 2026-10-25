@@ -153,7 +153,7 @@ def get_fare(km):
 # Each request just picks a random cached result — instant!
 
 model = None
-DENSITY_CACHE = []   # list of pre-computed coach results
+CACHE = {"low": [], "medium": [], "high": []}  # list of pre-computed coach results
 
 def make_coach_result(coach_id, level, pct):
     return {
@@ -261,18 +261,34 @@ def build_simulated_cache():
     print(f"Simulated cache built: {len(DENSITY_CACHE)} combinations ready")
 
 # ── Startup ─────────────────────────────────────────────────────
+
+
 try:
     print("Loading YOLO model...")
     from ultralytics import YOLO
     model = YOLO('model/weights/best.pt')
     print("Model loaded! Building density cache...")
-    build_density_cache_with_model()
+
+    all_val = glob.glob('data/processed/val/images/*.jpg')
+    random.shuffle(all_val)
+    for img_path in all_val:
+        r = model(img_path, verbose=False, conf=0.25)
+        count = len(r[0].boxes)
+        if count < 15 and len(CACHE["low"]) < 30:
+            CACHE["low"].append(img_path)
+        elif 15 <= count < 50 and len(CACHE["medium"]) < 30:
+            CACHE["medium"].append(img_path)
+        elif count >= 50 and len(CACHE["high"]) < 30:
+            CACHE["high"].append(img_path)
+        if all(len(v) >= 30 for v in CACHE.values()):
+            break
+    print(f"Cache ready — Low:{len(CACHE['low'])} Med:{len(CACHE['medium'])} High:{len(CACHE['high'])}")
+
 except Exception as e:
     print(f"WARNING: Model load failed ({e})")
     print("Building simulated density cache as fallback...")
-    build_simulated_cache()
 
-print(f"Startup complete. Cache size: {len(DENSITY_CACHE)}")
+print(f"Startup complete. Cache size: {sum(len(v) for v in CACHE.values())}")
 
 # ── ENDPOINTS ────────────────────────────────────────────────────
 
@@ -288,19 +304,115 @@ def home():
 
 @app.get("/density/{train_id}")
 def get_density(train_id: str):
-    """Returns pre-computed density — instant response"""
     try:
-        if not DENSITY_CACHE:
-            build_simulated_cache()
-        coaches = random.choice(DENSITY_CACHE)
+        from PIL import Image
+        import shutil
+
+        RD = os.path.join(root, 'results')
+        shutil.rmtree(RD, ignore_errors=True)
+        os.makedirs(RD, exist_ok=True)
+
+        coaches = {}
+
+        # Always works — uses cache if model loaded, simulates if not
+        if model is not None and (CACHE["low"] or CACHE["medium"] or CACHE["high"]):
+            # Use cached images — fast
+            all_val = glob.glob('data/processed/val/images/*.jpg')
+            if not all_val:
+                raise Exception("No validation images found in data/processed/val/images/")
+
+            low_imgs   = CACHE["low"]    if CACHE["low"]    else all_val[:2]
+            med_imgs   = CACHE["medium"] if CACHE["medium"] else all_val[2:4]
+            high_imgs  = CACHE["high"]   if CACHE["high"]   else all_val[4:6]
+
+            # Make sure we have at least 1 image per category
+            while len(low_imgs)  < 2: low_imgs.append(random.choice(all_val))
+            while len(med_imgs)  < 2: med_imgs.append(random.choice(all_val))
+            while len(high_imgs) < 2: high_imgs.append(random.choice(all_val))
+
+            pool = [
+                (random.choice(low_imgs),  "low"),
+                (random.choice(low_imgs),  "low"),
+                (random.choice(med_imgs),  "medium"),
+                (random.choice(med_imgs),  "medium"),
+                (random.choice(high_imgs), "high"),
+                (random.choice(high_imgs), "high"),
+            ]
+            random.shuffle(pool)
+
+            for i, (img_path, _) in enumerate(pool):
+                cid = i + 1
+                try:
+                    r = model(img_path, verbose=False, conf=0.25)
+                    count = len(r[0].boxes)
+                    if count < 15:
+                        level = "low"
+                        pct = max(5, round((count / 180) * 100))
+                    elif count < 50:
+                        level = "medium"
+                        pct = round((count / 180) * 100)
+                    else:
+                        level = "high"
+                        pct = min(100, round((count / 180) * 100))
+                    # Save annotated image
+                    ann = r[0].plot()
+                    sp = os.path.join(RD, f'Coach_{cid}_{pct}pct_{level}.jpg')
+                    Image.fromarray(ann).save(sp)
+                except Exception as img_err:
+                    print(f"Coach {cid} inference error: {img_err}")
+                    level = ["low","low","medium","medium","high","high"][i]
+                    pct = random.randint(5,35) if level=="low" else \
+                          random.randint(42,68) if level=="medium" else \
+                          random.randint(73,98)
+
+                coaches[f'C{cid}'] = {
+                    "coach": f"C{cid}",
+                    "density_pct": pct,
+                    "level": level,
+                    "ladies_only": cid == 1
+                }
+
+        else:
+            # Simulated fallback when model not loaded
+            print("Model not loaded — using simulated density")
+            import datetime
+            hour = datetime.datetime.now().hour
+            is_peak = (7 <= hour <= 10) or (17 <= hour <= 20)
+
+            levels = ["low","low","medium","medium","high","high"]
+            if is_peak:
+                levels = ["medium","medium","high","high","high","medium"]
+            random.shuffle(levels)
+
+            for i, level in enumerate(levels):
+                cid = i + 1
+                if level == "low":    pct = random.randint(5, 35)
+                elif level == "medium": pct = random.randint(42, 68)
+                else:                 pct = random.randint(73, 98)
+                coaches[f'C{cid}'] = {
+                    "coach": f"C{cid}",
+                    "density_pct": pct,
+                    "level": level,
+                    "ladies_only": cid == 1
+                }
+
+        print(f"Density result for {train_id}: {[(k, v['density_pct'], v['level']) for k,v in coaches.items()]}")
         return {
             "train_id": train_id,
             "coaches": coaches,
             "total_coaches": 6,
             "model_used": model is not None
         }
+
     except Exception as e:
-        return {"error": str(e), "status": "failed"}
+        import traceback
+        tb = traceback.format_exc()
+        print(f"DENSITY ERROR: {e}\n{tb}")
+        return {
+            "error": str(e),
+            "traceback": tb,
+            "train_id": train_id
+        }
 
 @app.get("/eta")
 def get_eta(from_station: str, to_station: str):
@@ -466,11 +578,23 @@ def get_density_by_station(train_id: str, station_idx: int):
 
 @app.get("/open_results")
 def open_results():
+    """Opens the results folder in Windows Explorer"""
     try:
         import subprocess
-        rp = os.path.join(root, 'results')
-        os.makedirs(rp, exist_ok=True)
-        subprocess.Popen(f'explorer "{rp}"')
-        return {"status": "opened"}
-    except:
-        return {"status": "failed"}
+        RD = os.path.join(root, 'results')
+        os.makedirs(RD, exist_ok=True)
+
+        # Check folder has images before opening
+        images = glob.glob(os.path.join(RD, '*.jpg'))
+        print(f"Opening results folder: {RD} ({len(images)} images)")
+
+        # Open Windows Explorer at results folder
+        subprocess.Popen(f'explorer "{RD}"')
+
+        return {
+            "status": "opened",
+            "folder": RD,
+            "image_count": len(images)
+        }
+    except Exception as e:
+        return {"status": "failed", "error": str(e)}

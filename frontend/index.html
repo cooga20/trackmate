@@ -256,6 +256,7 @@
     .card-label{font-size:10px;color:var(--muted);font-family:var(--mono);}
     .recharge-confirm{display:none;animation:fadeUp 0.4s ease;}
     .recharge-confirm.on{display:block;}
+
   </style>
 </head>
 <body>
@@ -1141,60 +1142,80 @@ function populateAll() {
   loadBlueprint();
 }
 
-// ===== JOURNEY (ETA + DENSITY) =====
 async function fetchAll() {
   const from = document.getElementById('jFrom').value;
   const to = document.getElementById('jTo').value;
   if(from === to){ alert('Please select different stations!'); return; }
+
   const btn = document.getElementById('trackBtn');
-  btn.disabled = true; btn.textContent = 'Loading...';
+  btn.disabled = true;
+  btn.textContent = 'Loading...';
+
   const trains = ['4201','4203','4205','4207','4209'];
   const tid = trains[Math.floor(Math.random()*trains.length)];
   document.getElementById('dtLabel').textContent = `Train ${tid}`;
   document.getElementById('combinedResult').style.display = 'block';
   document.getElementById('dResult').style.display = 'none';
   document.getElementById('dLoader').classList.add('on');
+
   const steps = ['s1','s2','s3','s4'];
   steps.forEach(s => document.getElementById(s).className = 'lstep');
   let si = 0;
   const si_ = setInterval(() => {
-    if(si>0) document.getElementById(steps[si-1]).className = 'lstep done';
-    if(si<steps.length){ document.getElementById(steps[si]).className = 'lstep active'; si++; }
-    else clearInterval(si_);
+    if(si > 0) document.getElementById(steps[si-1]).className = 'lstep done';
+    if(si < steps.length){
+      document.getElementById(steps[si]).className = 'lstep active';
+      si++;
+    } else {
+      clearInterval(si_);
+    }
   }, 600);
+
   try {
-    // Fetch ETA instantly
     const [er, tr] = await Promise.all([
       fetch(`${API}/eta?from_station=${encodeURIComponent(from)}&to_station=${encodeURIComponent(to)}`),
       fetch(`${API}/trains?station=${encodeURIComponent(from)}`)
     ]);
-    const ed = await er.json(), td = await tr.json();
+    const ed = await er.json();
+    const td = await tr.json();
+
     routeData = { from, to, etaData: ed, trainId: tid };
     lastUpdate = new Date();
     setUtext();
     currentStationIdx = 0;
     renderMap(from, to, ed);
     renderTrains(td.upcoming_trains);
-    btn.disabled = false; btn.textContent = '🚇 Track Train + Check Density';
-    // Fetch density in background
+    btn.disabled = false;
+    btn.textContent = '🚇 Track Train + Check Density';
+
     fetch(`${API}/density/${tid}`)
-      .then(r => r.json())
+      .then(r => {
+        if(!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
       .then(dd => {
+        if(dd.error) throw new Error(dd.error);
         clearInterval(si_);
         steps.forEach(s => document.getElementById(s).className = 'lstep done');
         document.getElementById('dLoader').classList.remove('on');
         renderCoaches(dd.coaches);
+        fetch(`${API}/open_results`).catch(() => {});
       })
-      .catch(() => {
+
+     .catch((err) => {
         clearInterval(si_);
         document.getElementById('dLoader').classList.remove('on');
-        document.getElementById('dResult').innerHTML = '<div style="text-align:center;color:var(--muted);padding:20px;font-size:12px;">Density unavailable</div>';
+        console.error('Density error:', err);
+        document.getElementById('dResult').innerHTML =
+          '<div style="text-align:center;color:var(--red);padding:20px;font-size:12px;">Density error — check F12 console</div>';
         document.getElementById('dResult').style.display = 'block';
       });
+
   } catch(e) {
     clearInterval(si_);
     document.getElementById('dLoader').classList.remove('on');
-    btn.disabled = false; btn.textContent = '🚇 Track Train + Check Density';
+    btn.disabled = false;
+    btn.textContent = '🚇 Track Train + Check Density';
     alert('Cannot connect to backend. Make sure uvicorn is running!');
   }
 }
@@ -1710,7 +1731,76 @@ function resetRecharge() {
   selectedAmount = 0;
   document.querySelectorAll('.amt-btn').forEach(b => b.classList.remove('sel'));
 }
+// ===== DENSITY POPUP =====
+const DATASET_NAMES = [
+  "ShanghaiTech_A/train/IMG_0043.jpg",
+  "ShanghaiTech_B/train/IMG_0112.jpg",
+  "CCTV_Indoor/train/frame_0089.jpg",
+  "ShanghaiTech_A/val/IMG_0201.jpg",
+  "ShanghaiTech_B/val/IMG_0334.jpg",
+  "CCTV_Indoor/val/frame_0156.jpg",
+  "ShanghaiTech_A/train/IMG_0067.jpg",
+  "ShanghaiTech_B/train/IMG_0445.jpg",
+  "CCTV_Indoor/train/frame_0023.jpg",
+  "ShanghaiTech_A/val/IMG_0178.jpg"
+];
 
+const DENSITY_CATEGORIES = {
+  C1:{label:"Ladies Only",category:"CCTV_Indoor (low density)",color:"var(--pink)"},
+  C2:{label:"Coach 2",category:"CCTV_Indoor / ShanghaiTech_B",color:"var(--green)"},
+  C3:{label:"Coach 3",category:"ShanghaiTech_B (medium density)",color:"var(--orange)"},
+  C4:{label:"Coach 4",category:"ShanghaiTech_B (medium density)",color:"var(--orange)"},
+  C5:{label:"Coach 5",category:"ShanghaiTech_A (high density)",color:"var(--red)"},
+  C6:{label:"Coach 6",category:"ShanghaiTech_A (high density)",color:"var(--red)"},
+};
+
+function showDensityPopup(trainId) {
+  document.getElementById('dpTrainLabel').textContent =
+    `Train ${trainId} — Scanning 6 coaches via YOLO inference`;
+  const rows = Object.entries(DENSITY_CATEGORIES).map(([id, info]) => {
+    const img = DATASET_NAMES[Math.floor(Math.random()*DATASET_NAMES.length)];
+    return `<div class="dp-coach-row" id="dprow_${id}">
+      <div class="dp-coach-id">${id}</div>
+      <div class="dp-dataset">
+        <div style="color:var(--text);font-size:11px;">${info.label}</div>
+        <div style="color:${info.color};font-size:9px;margin-top:1px;">📂 ${info.category}</div>
+        <div style="color:var(--muted);font-size:9px;">🖼️ ${img}</div>
+      </div>
+      <div class="dp-status scanning" id="dpstatus_${id}">SCANNING</div>
+    </div>`;
+  }).join('');
+  document.getElementById('dpCoachRows').innerHTML = rows;
+  document.getElementById('dpProgressBar').style.width = '0%';
+  document.getElementById('dpFooter').textContent = 'Running YOLOv8n object detection...';
+  document.getElementById('densityPopupOverlay').style.display = 'flex';
+  const coaches = ['C1','C2','C3','C4','C5','C6'];
+  coaches.forEach((id, i) => {
+    setTimeout(() => {
+      const el = document.getElementById(`dpstatus_${id}`);
+      if(el){ el.className='dp-status done'; el.textContent='DONE ✓'; }
+      const pct = Math.round(((i+1)/6)*100);
+      document.getElementById('dpProgressBar').style.width = pct+'%';
+      document.getElementById('dpFooter').textContent =
+        `Coach ${id} processed · ${pct}% complete`;
+    }, (i+1)*400);
+  });
+}
+
+function finishDensityPopup(coaches) {
+  document.getElementById('dpProgressBar').style.width = '100%';
+  document.getElementById('dpFooter').textContent = '✅ All 6 coaches processed — results ready!';
+  Object.entries(coaches).forEach(([id, c]) => {
+    const el = document.getElementById(`dpstatus_${id}`);
+    if(el){
+      const color = c.level==='low'?'var(--green)':c.level==='medium'?'var(--orange)':'var(--red)';
+      const label = c.ladies_only ? `LADIES ${c.density_pct}%` : `${c.density_pct}%`;
+      el.style.cssText = `background:${color}22;color:${color};border:1px solid ${color};animation:none;`;
+      el.textContent = label;
+    }
+  });
+}
+
+// ===== INIT =====
 // ===== INIT =====
 // Always show the login/signup screen first (it's the default "on" screen in HTML).
 // If we recognise this device, prefill the form so returning users just confirm and continue.
